@@ -7,49 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Election {
+model Eleicao {
   id          String      @id @default(uuid())
-  name        String
-  candidates  Candidate[]
-  voters      Voter[]
-  credentials Credential[]
-  votes       Vote[]
+  nome        String
+  chapas      Chapa[]
+  eleitores   Eleitor[]
+  credenciais Credencial[]
+  votos       Voto[]
 }
 
-model Candidate {
+model Chapa {
   id          String   @id @default(uuid())
-  name        String
-  electionId  String
-  election    Election @relation(fields: [electionId], references: [id])
-  votes       Vote[]
+  nome        String
+  eleicaoId   String
+  eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
+  votos       Voto[]
 }
 
-model Voter {
+model Eleitor {
   id          String   @id @default(uuid())
-  name        String
-  electionId  String
-  election    Election @relation(fields: [electionId], references: [id])
+  nome        String
+  eleicaoId   String
+  matricula   String   @unique
+  eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
+  credenciais Credencial[]
+  jaVotou     Boolean  @default(false)
+} 
+
+model Credencial {
+  id          String   @id @default(uuid())
+  eleitorId   String
+  eleicaoId   String
+  token       String   @unique
+  eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
+  eleitor     Eleitor @relation(fields: [eleitorId], references: [id])
+  usada       Boolean  @default(false)
+  @@unique([eleitorId, eleicaoId])
 }
 
-model Credential {
+model Voto {
   id          String   @id @default(uuid())
-  electionId  String
-  election    Election @relation(fields: [electionId], references: [id])
-  used        Boolean  @default(false)
-}
-
-model Vote {
-  id          String   @id @default(uuid())
-  electionId  String
-  election    Election @relation(fields: [electionId], references: [id])
-  candidateId String
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  eleicaoId   String
+  eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
+  chapaId     String
+  chapa       Chapa    @relation(fields: [chapaId], references: [id])
   timestamp   DateTime @default(now())
 }
 
-model User {
+model Usuario {
   id          String   @id @default(uuid())
-  username    String   @unique
-  password    String
-  role        String
+  usuario     String   @unique
+  senha       String
+  papel       String
 }
