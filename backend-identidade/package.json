@@ -1,7 +1,7 @@
 {
-  "name": "sue-backend",
+  "name": "backend-identidade",
   "version": "1.0.0",
-  "description": "Backend do Sistema de Urna Eletrônica usando NestJS e TypeScript",
+  "description": "Backend exclusivo para validação de identidade e geração de credenciais.",
   "main": "dist/main.js",
   "scripts": {
     "start": "nest start",
@@ -13,7 +13,8 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "class-validator": "^0.14.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
