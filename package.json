@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "@nestjs/common": "^11.1.6",
-    "@nestjs/core": "^11.1.6"
+    "@nestjs/core": "^11.1.6",
+    "@prisma/client": "^6.17.0",
+    "prisma": "^6.17.0"
   },
   "devDependencies": {
     "@types/node": "^24.7.1"

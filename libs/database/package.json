@@ -1,0 +1,18 @@
+{
+  "name": "database-lib",
+  "version": "1.0.0",
+  "description": "Biblioteca compartilhada para acesso ao banco de dados via Prisma.",
+  "main": "src/prisma.service.ts",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@prisma/client": "^5.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.0.0",
+    "typescript": "^5.0.0"
+  }
+}
