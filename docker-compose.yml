@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: sue
+      POSTGRES_PASSWORD: suepass
+      POSTGRES_DB: sue_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend-urna:
+    build:
+      context: .
+      dockerfile: ./backend-urna/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://sue:suepass@postgres:5432/sue_db
+      SERVICE_URL: http://backend-urna:3000
+      CLOUD_SERVICE_URL: https://urna.vota-ai.com
+    depends_on:
+      - postgres
+
+  backend-identidade:
+    build:
+      context: .
+      dockerfile: ./backend-identidade/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgres://sue:suepass@postgres:5432/sue_db
+      SERVICE_URL: http://backend-identidade:3001
+      CLOUD_SERVICE_URL: https://identidade.vota-ai.com
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

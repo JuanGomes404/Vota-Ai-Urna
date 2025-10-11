@@ -29,12 +29,4 @@ export class UrnaRepository {
     await this.prisma.eleitor.update({ where: { id: credencial.eleitorId }, data: { jaVotou: true } });
     return { message: 'Voto registrado, credencial invalidada e eleitor marcado como já votou.' };
   }
-
-  async invalidarCredencial(token: string) {
-    const credencial = await this.prisma.credencial.findUnique({ where: { token } });
-    return await this.prisma.credencial.update({
-      where: { token },
-      data: { usada: true },
-    });
-  }
 }
