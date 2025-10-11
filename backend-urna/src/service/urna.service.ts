@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { VotoDto } from '../model/voto.dto';
 import { IdentidadeClientService } from './identidade-client.service';
+import { UrnaRepository } from '../repository/urna.repository';
 
 @Injectable()
 export class UrnaService {
-    constructor(private readonly identidadeClient: IdentidadeClientService) { }
+    constructor(private readonly identidadeClient: IdentidadeClientService, private readonly urnaRepository: UrnaRepository) { }
 
-    async registrarVoto(votoDto: VotoDto) {
-        // Exemplo: valida credencial via microserviço de identidade
-        const validacao: any = await this.identidadeClient.validarIdentidade(votoDto.token);
-        if (!validacao || validacao.data?.error) {
-
-            return { error: 'Credencial inválida ou expirada. ' };
+    async confirmarVoto(votoDto: VotoDto) {
+        const credencial = await this.validarCredencial(votoDto.token);
+        if (!credencial || credencial.error) {
+            return { error: 'Credencial inválida' };
         }
-        // Lógica de registro anônimo do voto (MVP: apenas retorna sucesso)
-        this.consolidarVotoBase(votoDto);
-        return { message: 'Voto registrado com sucesso.' };
+        return this.urnaRepository.registrarVoto(votoDto);
     }
-    private consolidarVotoBase(votoDto: VotoDto) {
-        // Lógica para consolidar o voto na base de dados
-        // Esta função é um placeholder e deve ser implementada conforme a lógica de negócio
-        
-        console.log(`Voto para a chapa ${votoDto.slateId} registrado com sucesso.`);
+    async validarCredencial(token: string) {
+        return this.identidadeClient.validarIdentidade(token);
     }
+    async listarChapas(eleicaoId: string) {
+        return await this.urnaRepository.findChapasByElectionId(eleicaoId);
+    }
+
+
+
 }

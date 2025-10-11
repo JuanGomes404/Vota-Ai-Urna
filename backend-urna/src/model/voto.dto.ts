@@ -7,5 +7,9 @@ export class VotoDto {
 
   @IsUUID()
   @IsNotEmpty()
-  slateId!: string;
+  chapaId!: string;
+
+  @IsNotEmpty()
+  eleicaoId!: string;
+
 }

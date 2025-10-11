@@ -1,13 +1,25 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { VotoDto } from '../model/voto.dto';
 import { UrnaService } from '../service/urna.service';
 
 @Controller('urna')
 export class UrnaController {
+
+
   constructor(private readonly urnaService: UrnaService) {}
 
-  @Post('votar')
-  votar(@Body() votoDto: VotoDto) {
-    return this.urnaService.registrarVoto(votoDto);
+  // RF12: Exibe opções de voto (chapas)
+  @Get('chapas')
+  listarChapas(@Query('eleicaoId') eleicaoId: string) {
+    return this.urnaService.listarChapas(eleicaoId);
   }
+
+  // RF13: Tela de confirmação antes de registrar o voto
+  @Post('confirmar')
+  confirmarVoto(@Body() votoDto: VotoDto) {
+    // Retorna dados para confirmação (exemplo: nome da chapa)
+    return this.urnaService.confirmarVoto(votoDto);
+  }
+
+
 }
