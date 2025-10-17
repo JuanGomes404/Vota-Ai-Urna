@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../libs/database/src/prisma.service';
-import { VotoDto } from '../model/voto.dto';
+import { PrismaService } from '../../database/src/prisma.service';
+import { VotoDto } from '../models/voto.dto';
 
 @Injectable()
 export class UrnaRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
   async findChapasByElectionId(eleicaoId: string) {
     return await this.prisma.chapa.findMany({
       where: { eleicaoId: eleicaoId },
     });
   }
-  constructor(private readonly prisma: PrismaService) {}
 
   async registrarVoto(voto: VotoDto) {
     const credencial = await this.prisma.credencial.findUnique({ where: { token: voto.token } });

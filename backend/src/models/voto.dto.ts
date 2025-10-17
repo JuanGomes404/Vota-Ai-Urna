@@ -11,5 +11,4 @@ export class VotoDto {
 
   @IsNotEmpty()
   eleicaoId!: string;
-
 }

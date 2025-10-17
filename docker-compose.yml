@@ -12,29 +12,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  backend-urna:
+  backend:
     build:
-      context: .
-      dockerfile: ./backend-urna/Dockerfile
+      context: ./backend
+      dockerfile: ./Dockerfile
     ports:
       - "3000:3000"
     environment:
       DATABASE_URL: postgres://sue:suepass@postgres:5432/sue_db
-      SERVICE_URL: http://backend-urna:3000
-      CLOUD_SERVICE_URL: https://urna.vota-ai.com
-    depends_on:
-      - postgres
-
-  backend-identidade:
-    build:
-      context: .
-      dockerfile: ./backend-identidade/Dockerfile
-    ports:
-      - "3001:3001"
-    environment:
-      DATABASE_URL: postgres://sue:suepass@postgres:5432/sue_db
-      SERVICE_URL: http://backend-identidade:3001
-      CLOUD_SERVICE_URL: https://identidade.vota-ai.com
+      SERVICE_URL: http://backend:3000
+      CLOUD_SERVICE_URL: https://backend.vota-ai.com
     depends_on:
       - postgres
 
