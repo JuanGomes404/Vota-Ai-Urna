@@ -6,15 +6,18 @@ import { UrnaService } from '../services/urna.service';
 export class UrnaController {
   constructor(private readonly urnaService: UrnaService) {}
 
-  // RF12: Exibe opções de voto (chapas)
-  @Get('chapas')
-  listarChapas(@Query('eleicaoId') eleicaoId: string) {
-    return this.urnaService.listarChapas(eleicaoId);
+  @Post('validar-credencial')
+  async validarCredencial(@Body() body: { token: string }) {
+    return await this.urnaService.validarCredencial(body.token);
   }
 
-  // RF13: Tela de confirmação antes de registrar o voto
+  @Get('chapas')
+  async listarChapas(@Query('eleicaoId') eleicaoId: string) {
+    return await this.urnaService.listarChapas(eleicaoId);
+  }
+
   @Post('confirmar')
-  confirmarVoto(@Body() votoDto: VotoDto) {
-    return this.urnaService.confirmarVoto(votoDto);
+  async confirmarVoto(@Body() votoDto: VotoDto) {
+    return await this.urnaService.confirmarVoto(votoDto);
   }
 }

@@ -6,7 +6,7 @@ export class IdentidadeController {
   constructor(private readonly identidadeService: IdentidadeService) {}
 
   @Post('validar')
-  validarIdentidade(@Body() identidadeDto: any) {
-    return this.identidadeService.validarIdentidade(identidadeDto);
+  async validarIdentidade(@Body() identidadeDto: any) {
+    return await this.identidadeService.validarIdentidade(identidadeDto);
   }
 }

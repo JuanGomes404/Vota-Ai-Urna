@@ -10,10 +10,15 @@ datasource db {
 model Eleicao {
   id          String      @id @default(uuid())
   nome        String
+  descricao   String?
+  ativa       Boolean     @default(false)
+  status      String      @default("Criada") // Criada, Ativa, Encerrada
   chapas      Chapa[]
   eleitores   Eleitor[]
   credenciais Credencial[]
   votos       Voto[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Chapa {
@@ -54,9 +59,18 @@ model Voto {
   timestamp   DateTime @default(now())
 }
 
-model Usuario {
-  id          String   @id @default(uuid())
-  usuario     String   @unique
-  senha       String
-  papel       String
+model Administrador {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  createdAt DateTime @default(now())
+}
+
+model Mesario {
+  id        String   @id @default(uuid())
+  nome      String
+  usuario   String   @unique
+  senha     String
+  createdAt DateTime @default(now())
 }
