@@ -1,4 +1,4 @@
-# Backend Monolito - Sistema de Votação Eletrônica (TCC)
+# Backend Vota Ai - Sistema de Votação Eletrônica (TCC)
 
 Backend completo implementando todos os requisitos funcionais (RF01-RF15) e regras de negócio (RN01-RN13) para sistema de votação eletrônica.
 

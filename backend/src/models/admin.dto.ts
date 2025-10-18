@@ -45,5 +45,9 @@ export class EleitorDto {
 
   @IsString()
   @IsNotEmpty()
+  curso!: string;
+
+  @IsString()
+  @IsNotEmpty()
   eleicaoId!: string;
 }

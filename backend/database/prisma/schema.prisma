@@ -32,8 +32,9 @@ model Chapa {
 model Eleitor {
   id          String   @id @default(uuid())
   nome        String
-  eleicaoId   String
   matricula   String   @unique
+  curso       String
+  eleicaoId   String
   eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
   credenciais Credencial[]
   jaVotou     Boolean  @default(false)

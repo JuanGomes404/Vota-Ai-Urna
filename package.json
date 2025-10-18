@@ -3,6 +3,7 @@
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
     "@prisma/client": "^6.17.0",
+    "class-validator": "^0.14.2",
     "prisma": "^6.17.0"
   },
   "devDependencies": {
