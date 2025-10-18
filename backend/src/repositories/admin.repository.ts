@@ -42,6 +42,7 @@ export class AdminRepository {
         data: {
           nome: eleitor.nome,
           matricula: eleitor.matricula,
+          curso: eleitor.curso,
           eleicaoId: eleitor.eleicaoId,
           jaVotou: false
         }
