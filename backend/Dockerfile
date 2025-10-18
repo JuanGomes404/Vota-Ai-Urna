@@ -21,6 +21,9 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
+# Instalar cliente PostgreSQL para execução de scripts SQL
+RUN apk add --no-cache postgresql-client
+
 # Instalar apenas dependências de produção
 COPY package*.json ./
 COPY database/package*.json ./database/

@@ -35,43 +35,40 @@ VALUES (
 
 -- Criar eleitores de exemplo (assumindo que existe uma eleição)
 -- Nota: Em produção, os eleitores devem ser importados via API
-INSERT INTO "Eleitor" (id, nome, matricula, curso, "eleicaoId", "jaVotou", "createdAt")
+INSERT INTO "Eleitor" (id, nome, matricula, curso, "eleicaoId", "jaVotou")
 SELECT 
     gen_random_uuid(),
     'João Silva',
     '2021001234',
     'Ciência da Computação',
     e.id,
-    false,
-    NOW()
+    false
 FROM "Eleicao" e 
 WHERE e.nome = 'Eleição de Exemplo - Vota Ai'
 LIMIT 1
 ON CONFLICT (matricula) DO NOTHING;
 
-INSERT INTO "Eleitor" (id, nome, matricula, curso, "eleicaoId", "jaVotou", "createdAt")
+INSERT INTO "Eleitor" (id, nome, matricula, curso, "eleicaoId", "jaVotou")
 SELECT 
     gen_random_uuid(),
     'Maria Santos',
     '2021005678',
     'Engenharia de Software',
     e.id,
-    false,
-    NOW()
+    false
 FROM "Eleicao" e 
 WHERE e.nome = 'Eleição de Exemplo - Vota Ai'
 LIMIT 1
 ON CONFLICT (matricula) DO NOTHING;
 
-INSERT INTO "Eleitor" (id, nome, matricula, curso, "eleicaoId", "jaVotou", "createdAt")
+INSERT INTO "Eleitor" (id, nome, matricula, curso, "eleicaoId", "jaVotou")
 SELECT 
     gen_random_uuid(),
     'Pedro Oliveira',
     '2021009012',
     'Sistemas de Informação',
     e.id,
-    false,
-    NOW()
+    false
 FROM "Eleicao" e 
 WHERE e.nome = 'Eleição de Exemplo - Vota Ai'
 LIMIT 1

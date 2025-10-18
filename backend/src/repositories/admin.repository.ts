@@ -12,6 +12,12 @@ export class AdminRepository {
     });
   }
 
+  async listarEleicoes() {
+    return await this.prisma.eleicao.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   // RN01: Apenas administrador pode criar eleições
   async criarEleicao(eleicaoDto: EleicaoDto) {
     return await this.prisma.eleicao.create({

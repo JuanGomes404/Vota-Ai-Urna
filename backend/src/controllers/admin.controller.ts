@@ -11,6 +11,13 @@ export class AdminController {
 
   @UseGuards(RolesGuard)
   @Roles('admin')
+  @Get('eleicoes')
+  async listarEleicoes() {
+    return await this.adminService.listarEleicoes();
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Post('eleicoes')
   async criarEleicao(@Body() eleicaoDto: EleicaoDto) {
     return await this.adminService.criarEleicao(eleicaoDto);

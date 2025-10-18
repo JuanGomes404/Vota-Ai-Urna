@@ -14,6 +14,10 @@ export class AdminService {
     return { error: 'Credenciais inválidas' };
   }
 
+  async listarEleicoes() {
+    return await this.adminRepository.listarEleicoes();
+  }
+
   async criarEleicao(eleicaoDto: EleicaoDto) {
     return await this.adminRepository.criarEleicao(eleicaoDto);
   }
