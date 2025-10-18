@@ -29,7 +29,6 @@ export class AdminRepository {
     return await this.prisma.chapa.create({
       data: {
         nome: chapaDto.nome,
-        numero: chapaDto.numero,
         eleicaoId: chapaDto.eleicaoId
       }
     });
@@ -43,7 +42,6 @@ export class AdminRepository {
         data: {
           nome: eleitor.nome,
           matricula: eleitor.matricula,
-          curso: eleitor.curso,
           eleicaoId: eleitor.eleicaoId,
           jaVotou: false
         }

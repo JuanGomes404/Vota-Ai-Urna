@@ -1,7 +1,6 @@
 import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
-import { AuthService } from '../auth/auth.service';
-import { LoginDto, EleicaoDto, ChapaDto } from '../models/admin.dto';
+import { EleicaoDto, ChapaDto } from '../models/admin.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard, Roles } from '../auth/roles.guard';
 
@@ -9,28 +8,7 @@ import { RolesGuard, Roles } from '../auth/roles.guard';
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
-    private readonly authService: AuthService,
   ) {}
-
-  @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.validateAdmin(loginDto.email, loginDto.senha);
-    if (!user) {
-      return { error: 'Credenciais inválidas' };
-    }
-    
-    const token = await this.authService.generateToken(user);
-    return { 
-      message: 'Login realizado com sucesso', 
-      token,
-      user: {
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-        role: user.role
-      }
-    };
-  }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')

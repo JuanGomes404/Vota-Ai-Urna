@@ -38,7 +38,7 @@ export class DatabaseInitService implements OnModuleInit {
       if (Array.isArray(tables) && tables.length === 0) {
         console.log('⚠️ Tabelas não encontradas. Execute: npx prisma migrate deploy');
       } else {
-        console.log('✅ Tabelas encontradas:', tables.map((t: any) => t.table_name));
+        console.log('✅ Tabelas encontradas:', (tables as any[]).map((t: any) => t.table_name));
       }
     } catch (error) {
       console.error('Erro ao verificar migrações:', error);

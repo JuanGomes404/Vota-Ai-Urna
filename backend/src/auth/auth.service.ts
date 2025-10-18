@@ -19,7 +19,34 @@ export class AuthService {
     private readonly mesarioRepository: MesarioRepository,
   ) {}
 
-  // Autenticação do Administrador
+  // Autenticação unificada - tenta admin primeiro, depois mesário
+  async validateUser(usuario: string, senha: string): Promise<UserPayload | null> {
+    // Primeiro tenta validar como administrador (usando email)
+    const admin = await this.adminRepository.findByEmail(usuario);
+    if (admin && admin.senha === senha) {
+      return {
+        id: admin.id,
+        email: admin.email,
+        role: 'admin',
+        nome: admin.nome,
+      };
+    }
+
+    // Se não for admin, tenta validar como mesário (usando usuário)
+    const mesario = await this.mesarioRepository.findByUsuario(usuario);
+    if (mesario && mesario.senha === senha) {
+      return {
+        id: mesario.id,
+        usuario: mesario.usuario,
+        role: 'mesario',
+        nome: mesario.nome,
+      };
+    }
+
+    return null;
+  }
+
+  // Métodos mantidos para compatibilidade (podem ser removidos futuramente)
   async validateAdmin(email: string, senha: string): Promise<UserPayload | null> {
     const admin = await this.adminRepository.findByEmail(email);
     if (admin && admin.senha === senha) {
@@ -33,7 +60,6 @@ export class AuthService {
     return null;
   }
 
-  // Autenticação do Mesário
   async validateMesario(usuario: string, senha: string): Promise<UserPayload | null> {
     const mesario = await this.mesarioRepository.findByUsuario(usuario);
     if (mesario && mesario.senha === senha) {

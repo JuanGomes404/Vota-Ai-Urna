@@ -6,10 +6,8 @@ Sistema completo de votação eletrônica desenvolvido para TCC, implementando t
 
 - [Visão Geral](#-visão-geral)
 - [Instalação e Execução](#-instalação-e-execução)
-- [Funcionalidades](#-funcionalidades)
 - [API Endpoints](#-api-endpoints)
 - [Exemplos de Uso](#-exemplos-de-uso)
-- [Requisitos e Regras](#-requisitos-e-regras)
 - [Tecnologias](#-tecnologias)
 
 ---
@@ -20,6 +18,7 @@ O **Vota Ai** é um sistema de votação eletrônica completo que permite a real
 
 ### Características Principais
 - ✅ **Sistema Monolítico** unificado para facilitar desenvolvimento e manutenção
+- ✅ **Login Unificado** - Um único endpoint para admin e mesário
 - ✅ **Permissionamento Robusto** com JWT e roles
 - ✅ **Votação Anônima** garantindo privacidade do eleitor
 - ✅ **Credenciais de Uso Único** para máxima segurança
@@ -107,11 +106,12 @@ docker-compose down -v
 
 ## ⚙️ Funcionalidades
 
-### 🔐 Sistema de Autenticação
+### 🔐 Sistema de Autenticação Unificado
+- **Login Unificado** - Um único endpoint para admin e mesário
 - **JWT Tokens** com expiração de 8 horas
 - **Roles**: Admin e Mesário com permissões específicas
 - **Guards de Segurança** protegendo endpoints
-- **Validação de Credenciais** em tempo real
+- **Validação Automática** de tipo de usuário baseado nas credenciais
 
 ### 👨‍💼 Administrador
 - **Criar Eleições** com nome e descrição
@@ -136,10 +136,9 @@ docker-compose down -v
 
 ## 📡 API Endpoints
 
-### 🔐 Autenticação
+### 🔐 Autenticação Unificada
 ```http
-POST /admin/login              # Login administrador
-POST /mesario/login            # Login mesário
+POST /auth/login               # Login unificado (admin/mesário)
 ```
 
 ### 👨‍💼 Administrador (Protegido)
@@ -176,26 +175,42 @@ POST /identidade/validar         # Validar identidade
 
 ## 📡 Exemplos de Uso
 
-### 🔐 Autenticação
+### 🔐 Autenticação Unificada
 
-#### Login do Administrador
+#### Login Unificado (Admin ou Mesário)
 ```bash
-curl -X POST http://localhost:3000/admin/login \
+# Login como Administrador (usando email)
+curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@vota-ai.com",
+    "usuario": "admin@vota-ai.com",
     "senha": "admin123"
   }'
 ```
 
-#### Login do Mesário
 ```bash
-curl -X POST http://localhost:3000/mesario/login \
+# Login como Mesário (usando usuário)
+curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "usuario": "mesario01",
     "senha": "mesario123"
   }'
+```
+
+**Resposta Unificada:**
+```json
+{
+  "message": "Login realizado com sucesso",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "uuid-do-usuario",
+    "nome": "Nome do Usuário",
+    "email": "admin@vota-ai.com",     // apenas para admin
+    "usuario": "mesario01",           // apenas para mesário
+    "role": "admin"                   // ou "mesario"
+  }
+}
 ```
 
 ### 👨‍💼 Administrador
@@ -274,10 +289,10 @@ curl -X POST http://localhost:3000/urna/confirmar \
 
 #### 1. Administrador cria eleição
 ```bash
-# Login admin
-ADMIN_TOKEN=$(curl -s -X POST http://localhost:3000/admin/login \
+# Login admin (usando endpoint unificado)
+ADMIN_TOKEN=$(curl -s -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@vota-ai.com","senha":"admin123"}' | \
+  -d '{"usuario":"admin@vota-ai.com","senha":"admin123"}' | \
   jq -r '.token')
 
 # Criar eleição
@@ -294,8 +309,8 @@ curl -X POST http://localhost:3000/admin/eleicoes/$ELEICAO_ID/ativar \
 
 #### 2. Mesário habilita eleitor
 ```bash
-# Login mesário
-MESARIO_TOKEN=$(curl -s -X POST http://localhost:3000/mesario/login \
+# Login mesário (usando endpoint unificado)
+MESARIO_TOKEN=$(curl -s -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"usuario":"mesario01","senha":"mesario123"}' | \
   jq -r '.token')
@@ -320,48 +335,6 @@ curl -X POST http://localhost:3000/urna/confirmar \
   -H "Content-Type: application/json" \
   -d "{\"eleicaoId\":\"$ELEICAO_ID\",\"chapaId\":\"CHAPA_ID\",\"token\":\"$CREDENCIAL\"}"
 ```
-
----
-
-## 📋 Requisitos e Regras
-
-### ✅ Requisitos Funcionais Implementados
-
-| RF | Descrição | Status |
-|----|-----------|--------|
-| **RF01** | Sistema deve permitir login de administrador | ✅ |
-| **RF02** | Sistema deve permitir login de mesário | ✅ |
-| **RF03** | Administrador deve criar eleições | ✅ |
-| **RF04** | Administrador deve criar chapas | ✅ |
-| **RF05** | Administrador deve importar eleitores | ✅ |
-| **RF06** | Administrador deve ativar eleições | ✅ |
-| **RF07** | Administrador deve encerrar eleições | ✅ |
-| **RF08** | Administrador deve visualizar resultados | ✅ |
-| **RF09** | Mesário deve buscar eleitores | ✅ |
-| **RF10** | Mesário deve habilitar eleitores | ✅ |
-| **RF11** | Sistema deve validar credenciais | ✅ |
-| **RF12** | Sistema deve listar chapas | ✅ |
-| **RF13** | Sistema deve confirmar votos | ✅ |
-| **RF14** | Sistema deve validar identidade | ✅ |
-| **RF15** | Sistema deve fornecer health check | ✅ |
-
-### ✅ Regras de Negócio Implementadas
-
-| RN | Descrição | Status |
-|----|-----------|--------|
-| **RN01** | Apenas administradores podem criar eleições | ✅ |
-| **RN02** | Eleição deve ter lista de eleitores | ✅ |
-| **RN03** | Apenas administradores podem ativar eleições | ✅ |
-| **RN04** | Resultados só após eleição encerrada | ✅ |
-| **RN05** | Apenas eleitores da lista podem ser habilitados | ✅ |
-| **RN06** | Eleitor não pode votar duas vezes | ✅ |
-| **RN07** | Credencial deve ser de uso único | ✅ |
-| **RN08** | Mesário deve verificar habilitação | ✅ |
-| **RN09** | Credencial deve ser válida para votação | ✅ |
-| **RN10** | Voto deve ser anônimo | ✅ |
-| **RN11** | Sistema deve registrar timestamp | ✅ |
-| **RN12** | Sistema deve validar dados | ✅ |
-| **RN13** | Sistema não deve armazenar dados identificadores | ✅ |
 
 ---
 
@@ -456,13 +429,15 @@ Mesario {
 }
 ```
 
-### Fluxo de Autenticação
+### Fluxo de Autenticação Unificado
 ```
-1. Login → Validação de credenciais
-2. Geração de JWT com role
-3. Token enviado no header Authorization
-4. Guards validam token e role
-5. Acesso liberado ou negado
+1. Login único → POST /auth/login
+2. Sistema tenta validar como admin primeiro (email)
+3. Se não encontrar, tenta validar como mesário (usuário)
+4. Geração de JWT com role determinado automaticamente
+5. Token enviado no header Authorization
+6. Guards validam token e role
+7. Acesso liberado ou negado
 ```
 
 ### Matriz de Permissões
@@ -484,53 +459,6 @@ Mesario {
 
 ---
 
-## 🐳 Docker
-
-### Comandos Principais
-
-```bash
-# Subir sistema completo
-docker-compose up --build
-
-# Em background
-docker-compose up -d --build
-
-# Verificar status
-docker-compose ps
-
-# Ver logs
-docker-compose logs -f
-
-# Parar sistema
-docker-compose down
-
-# Parar e limpar dados
-docker-compose down -v
-```
-
-### Desenvolvimento
-
-```bash
-# Usar configuração de desenvolvimento
-docker-compose -f docker-compose.dev.yml up --build
-```
-
-### Monitoramento
-
-```bash
-# Health check
-curl http://localhost:3000/health
-
-# Estatísticas dos containers
-docker stats
-
-# Logs específicos
-docker-compose logs backend
-docker-compose logs postgres
-```
-
----
-
 ## 🧪 Testes
 
 ### Health Check
@@ -538,15 +466,15 @@ docker-compose logs postgres
 curl http://localhost:3000/health
 ```
 
-### Teste de Login
+### Teste de Login Unificado
 ```bash
-# Admin
-curl -X POST http://localhost:3000/admin/login \
+# Login como Administrador
+curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@vota-ai.com","senha":"admin123"}'
+  -d '{"usuario":"admin@vota-ai.com","senha":"admin123"}'
 
-# Mesário
-curl -X POST http://localhost:3000/mesario/login \
+# Login como Mesário
+curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"usuario":"mesario01","senha":"mesario123"}'
 ```
@@ -589,34 +517,6 @@ SELECT * FROM "Mesario";
 - **ESLint** - Linting de código
 - **Prettier** - Formatação
 - **Git** - Controle de versão
-
----
-
-## 📞 Suporte
-
-### Logs Importantes
-```bash
-# Logs de inicialização
-docker-compose logs backend | head -50
-
-# Logs de erro
-docker-compose logs backend | grep -i error
-
-# Logs do banco
-docker-compose logs postgres | tail -20
-```
-
-### Informações para Suporte
-```bash
-# Versão do Docker
-docker --version
-
-# Status dos containers
-docker-compose ps
-
-# Configuração do sistema
-docker-compose config
-```
 
 ---
 
