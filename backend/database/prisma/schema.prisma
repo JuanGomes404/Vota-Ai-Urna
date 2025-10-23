@@ -24,20 +24,23 @@ model Eleicao {
 model Chapa {
   id          String   @id @default(uuid())
   nome        String
+  numero      Int
   eleicaoId   String
   eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
   votos       Voto[]
+  @@unique([numero, eleicaoId])
 }
 
 model Eleitor {
   id          String   @id @default(uuid())
   nome        String
-  matricula   String   @unique
+  matricula   String
   curso       String
   eleicaoId   String
   eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
   credenciais Credencial[]
   jaVotou     Boolean  @default(false)
+  @@unique([matricula, eleicaoId])
 } 
 
 model Credencial {
@@ -48,15 +51,17 @@ model Credencial {
   eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
   eleitor     Eleitor @relation(fields: [eleitorId], references: [id])
   usada       Boolean  @default(false)
-  @@unique([eleitorId, eleicaoId])
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
 }
 
 model Voto {
   id          String   @id @default(uuid())
   eleicaoId   String
   eleicao     Eleicao @relation(fields: [eleicaoId], references: [id])
-  chapaId     String
-  chapa       Chapa    @relation(fields: [chapaId], references: [id])
+  chapaId     String?
+  chapa       Chapa?   @relation(fields: [chapaId], references: [id])
+  tipo        String   @default("valido") // valido, branco, nulo
   timestamp   DateTime @default(now())
 }
 

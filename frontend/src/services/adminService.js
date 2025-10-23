@@ -21,6 +21,15 @@ export const adminService = {
     }
   },
 
+  async buscarEleicao(eleicaoId) {
+    try {
+      const response = await api.get(`/admin/eleicoes/${eleicaoId}`)
+      return response.data
+    } catch (error) {
+      throw error.response?.data || error
+    }
+  },
+
   async ativarEleicao(eleicaoId) {
     try {
       const response = await api.post(`/admin/eleicoes/${eleicaoId}/ativar`)
@@ -58,28 +67,10 @@ export const adminService = {
     }
   },
 
-  async listarChapas(eleicaoId) {
-    try {
-      const response = await api.get(`/admin/chapas?eleicaoId=${eleicaoId}`)
-      return response.data
-    } catch (error) {
-      throw error.response?.data || error
-    }
-  },
-
   // Eleitores
   async importarEleitores(eleitores) {
     try {
       const response = await api.post('/admin/eleitores/importar', eleitores)
-      return response.data
-    } catch (error) {
-      throw error.response?.data || error
-    }
-  },
-
-  async listarEleitores(eleicaoId) {
-    try {
-      const response = await api.get(`/admin/eleitores?eleicaoId=${eleicaoId}`)
       return response.data
     } catch (error) {
       throw error.response?.data || error

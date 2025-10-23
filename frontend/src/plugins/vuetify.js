@@ -18,13 +18,16 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          primary: '#1976D2',
-          secondary: '#424242',
-          accent: '#82B1FF',
-          error: '#FF5252',
-          info: '#2196F3',
-          success: '#4CAF50',
-          warning: '#FFC107',
+          // UNIRIO Color Palette
+          primary: '#005A9C',      // Azul UNIRIO
+          secondary: '#00843D',    // Verde UNIRIO
+          accent: '#FDB913',       // Amarelo UNIRIO
+          background: '#FFFFFF',   // Branco
+          surface: '#FFFFFF',
+          error: '#D32F2F',
+          info: '#0277BD',
+          success: '#00843D',      // Verde UNIRIO
+          warning: '#FDB913',      // Amarelo UNIRIO
         },
       },
     },

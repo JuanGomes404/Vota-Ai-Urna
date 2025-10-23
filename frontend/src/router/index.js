@@ -8,6 +8,8 @@ import AdminEleicoes from '@/views/admin/Eleicoes.vue'
 import AdminResultados from '@/views/admin/Resultados.vue'
 import MesarioDashboard from '@/views/mesario/Dashboard.vue'
 import UrnaEletronica from '@/views/urna/UrnaEletronica.vue'
+import SelecaoVoto from '@/views/urna/SelecaoVoto.vue'
+import VotoSucesso from '@/views/urna/VotoSucesso.vue'
 import Home from '@/views/Home.vue'
 
 const routes = [
@@ -56,6 +58,16 @@ const routes = [
     path: '/urna',
     name: 'UrnaEletronica',
     component: UrnaEletronica
+  },
+  {
+    path: '/urna/votar',
+    name: 'SelecaoVoto',
+    component: SelecaoVoto
+  },
+  {
+    path: '/urna/sucesso',
+    name: 'VotoSucesso',
+    component: VotoSucesso
   },
   {
     path: '/:pathMatch(.*)*',

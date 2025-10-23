@@ -1,24 +1,36 @@
 <template>
   <v-app>
-    <v-app-bar color="primary" dark>
-      <v-app-bar-title>
-        <v-icon left>mdi-account-tie</v-icon>
-        Painel do Mesário
+    <v-app-bar color="primary" dark density="comfortable">
+      <v-app-bar-title class="d-flex align-center">
+        <v-icon class="mr-2">mdi-account-tie</v-icon>
+        <span class="d-none d-sm-inline">Painel do Mesário</span>
+        <span class="d-inline d-sm-none">Mesário</span>
       </v-app-bar-title>
       
       <v-spacer />
       
+      <v-btn
+        color="white"
+        variant="text"
+        @click="$router.push('/')"
+        size="small"
+        class="mr-1 mr-sm-2"
+      >
+        <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-home</v-icon>
+        <span class="d-none d-sm-inline">Início</span>
+      </v-btn>
+      
       <v-menu>
         <template v-slot:activator="{ props }">
-          <v-btn color="white" variant="text" v-bind="props">
-            <v-icon left>mdi-account</v-icon>
-            {{ authStore.userName }}
+          <v-btn color="white" variant="text" v-bind="props" size="small">
+            <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-account</v-icon>
+            <span class="d-none d-sm-inline">{{ authStore.userName }}</span>
           </v-btn>
         </template>
         <v-list>
           <v-list-item @click="handleLogout">
             <v-list-item-title>
-              <v-icon left>mdi-logout</v-icon>
+              <v-icon class="mr-2">mdi-logout</v-icon>
               Sair
             </v-list-item-title>
           </v-list-item>
@@ -27,26 +39,75 @@
     </v-app-bar>
 
     <v-main>
-      <v-container fluid class="pa-8">
+      <v-container fluid class="pa-4 pa-sm-6 pa-md-8">
         <v-row>
           <v-col cols="12">
-            <h1 class="text-h3 font-weight-bold mb-6">
+            <h1 class="text-h5 text-sm-h4 text-md-h3 font-weight-bold mb-4 mb-md-6" style="color: #005A9C;">
               PAINEL DO MESÁRIO
             </h1>
-            <p class="text-h6 grey--text mb-6">
-              Eleição DCE UNIRIO 2025
-            </p>
           </v-col>
         </v-row>
 
-        <v-row justify="center">
-          <v-col cols="12" md="8" lg="6">
-            <v-card elevation="8" class="pa-8">
-              <v-card-title class="text-center mb-6">
-                <h2 class="text-h5 font-weight-bold">
-                  Digite a Matrícula do Eleitor:
+        <!-- Seleção de Eleição -->
+        <v-row justify="center" v-if="!eleicaoSelecionada">
+          <v-col cols="12" sm="11" md="10" lg="8" xl="6">
+            <v-card elevation="8" class="pa-4 pa-sm-6 pa-md-8">
+              <v-card-title class="text-center mb-4 mb-md-6 px-0">
+                <h2 class="text-subtitle-1 text-sm-h6 text-md-h5 font-weight-bold">
+                  Selecione a Eleição Ativa
                 </h2>
               </v-card-title>
+
+              <v-alert v-if="eleicoes.length === 0" type="info" class="mb-4">
+                Não há eleições ativas no momento.
+              </v-alert>
+
+              <v-list v-else>
+                <v-list-item
+                  v-for="eleicao in eleicoes"
+                  :key="eleicao.id"
+                  @click="selecionarEleicao(eleicao)"
+                  class="mb-2"
+                  border
+                  rounded
+                >
+                  <template v-slot:prepend>
+                    <v-icon color="primary">mdi-vote</v-icon>
+                  </template>
+                  <v-list-item-title class="text-h6">{{ eleicao.nome }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="eleicao.descricao">{{ eleicao.descricao }}</v-list-item-subtitle>
+                  <template v-slot:append>
+                    <v-chip color="success" size="small">{{ eleicao.status }}</v-chip>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <!-- Busca de Eleitor -->
+        <v-row justify="center" v-if="eleicaoSelecionada">
+          <v-col cols="12" sm="11" md="10" lg="9" xl="8">
+            <v-card elevation="8" class="pa-4 pa-sm-6 pa-md-8">
+              <div class="position-relative">
+                <v-btn
+                  icon
+                  size="small"
+                  @click="voltarSelecaoEleicao"
+                  class="back-button-mesario"
+                >
+                  <v-icon>mdi-arrow-left</v-icon>
+                </v-btn>
+                <v-card-title class="text-center mb-3 mb-md-4 px-0">
+                  <h2 class="text-subtitle-1 text-sm-h6 text-md-h5 font-weight-bold">
+                    {{ eleicaoSelecionada.nome }}
+                  </h2>
+                </v-card-title>
+              </div>
+
+              <v-card-subtitle class="text-center mb-4 mb-md-6 px-0">
+                Digite a Matrícula ou Selecione o Eleitor da Lista:
+              </v-card-subtitle>
 
               <v-form @submit.prevent="buscarEleitor" ref="formEleitor">
                 <v-text-field
@@ -54,10 +115,11 @@
                   label="Matrícula"
                   prepend-inner-icon="mdi-card-account-details"
                   variant="outlined"
-                  size="large"
                   :rules="[rules.required, rules.matricula]"
-                  class="mb-6"
+                  class="mb-4 mb-md-6"
                   autofocus
+                  density="comfortable"
+                  persistent-placeholder
                 />
 
                 <v-alert
@@ -70,60 +132,124 @@
                   {{ error }}
                 </v-alert>
 
-                <div class="text-center">
+                <div class="text-center mb-4 mb-md-6">
                   <v-btn
                     type="submit"
                     color="primary"
                     size="large"
                     :loading="loading"
-                    class="px-8"
+                    class="px-6 px-sm-8"
+                    block
                   >
-                    <v-icon left>mdi-magnify</v-icon>
+                    <v-icon class="mr-2">mdi-magnify</v-icon>
                     BUSCAR ELEITOR
                   </v-btn>
                 </div>
               </v-form>
+
+              <!-- Lista de Eleitores -->
+              <v-divider class="my-4 my-md-6"></v-divider>
+              
+              <v-card-subtitle class="text-center mb-3 mb-md-4 px-0">
+                <h3 class="text-subtitle-1 text-sm-h6 font-weight-bold">Lista de Eleitores</h3>
+              </v-card-subtitle>
+
+              <v-text-field
+                v-model="searchEleitores"
+                label="Buscar na lista"
+                prepend-inner-icon="mdi-magnify"
+                variant="outlined"
+                density="comfortable"
+                class="mb-4"
+                clearable
+                persistent-placeholder
+              />
+
+              <v-alert v-if="loadingEleitores" type="info" class="mb-4">
+                Carregando lista de eleitores...
+              </v-alert>
+
+              <v-list v-if="!loadingEleitores && eleitoresFiltrados.length > 0" class="pa-0" max-height="400" style="overflow-y: auto;">
+                <v-list-item
+                  v-for="eleitor in eleitoresFiltrados"
+                  :key="eleitor.id"
+                  @click="selecionarEleitorDaLista(eleitor)"
+                  class="mb-2"
+                  border
+                  rounded
+                  :class="{ 'bg-grey-lighten-3': eleitor.jaVotou }"
+                >
+                  <template v-slot:prepend>
+                    <v-icon :color="eleitor.jaVotou ? 'grey' : 'success'">
+                      {{ eleitor.jaVotou ? 'mdi-check-circle' : 'mdi-account-circle' }}
+                    </v-icon>
+                  </template>
+                  <v-list-item-title>{{ eleitor.nome }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    Matrícula: {{ eleitor.matricula }} | Curso: {{ eleitor.curso }}
+                  </v-list-item-subtitle>
+                  <template v-slot:append>
+                    <v-chip 
+                      :color="eleitor.jaVotou ? 'grey' : 'success'" 
+                      size="small"
+                      variant="flat"
+                    >
+                      {{ eleitor.jaVotou ? 'JÁ VOTOU' : 'APTO' }}
+                    </v-chip>
+                  </template>
+                </v-list-item>
+              </v-list>
+
+              <v-alert v-if="!loadingEleitores && eleitoresFiltrados.length === 0" type="info" class="mb-4">
+                Nenhum eleitor encontrado.
+              </v-alert>
             </v-card>
           </v-col>
         </v-row>
 
         <!-- Resultado da busca -->
-        <v-row v-if="eleitor" justify="center" class="mt-6">
-          <v-col cols="12" md="8" lg="6">
-            <v-card elevation="8" class="pa-6">
-              <v-card-title class="text-center mb-4">
-                <h3 class="text-h5 font-weight-bold">Dados do Eleitor</h3>
+        <v-row v-if="eleitor" justify="center" class="mt-4 mt-md-6">
+          <v-col cols="12" sm="11" md="10" lg="8" xl="6">
+            <v-card elevation="8" class="pa-4 pa-sm-6">
+              <v-card-title class="text-center mb-3 mb-md-4 px-0">
+                <h3 class="text-subtitle-1 text-sm-h6 text-md-h5 font-weight-bold">Dados do Eleitor</h3>
               </v-card-title>
 
-              <v-card-text>
+              <v-card-text class="px-0">
                 <v-row>
                   <v-col cols="12">
                     <v-text-field
-                      :value="eleitor.nome"
+                      :model-value="eleitor.nome"
                       label="Nome"
                       readonly
                       variant="outlined"
-                      class="mb-4"
+                      class="mb-3 mb-md-4"
+                      density="comfortable"
+                      persistent-placeholder
                     />
                   </v-col>
                   
                   <v-col cols="12">
                     <v-text-field
-                      :value="eleitor.matricula"
+                      :model-value="eleitor.matricula"
                       label="Matrícula"
                       readonly
                       variant="outlined"
-                      class="mb-4"
+                      class="mb-3 mb-md-4"
+                      density="comfortable"
+                      persistent-placeholder
                     />
                   </v-col>
                   
                   <v-col cols="12">
                     <v-text-field
-                      :value="eleitor.curso"
+                      :model-value="eleitor.curso"
                       label="Curso"
                       readonly
                       variant="outlined"
-                      class="mb-4"
+                      class="mb-3 mb-md-4"
+                      density="comfortable"
+                      persistent-placeholder
                     />
                   </v-col>
                   
@@ -141,15 +267,16 @@
                   </v-col>
                 </v-row>
 
-                <div v-if="!eleitor.jaVotou" class="text-center mt-6">
+                <div v-if="!eleitor.jaVotou" class="text-center mt-4 mt-md-6">
                   <v-btn
                     color="success"
-                    size="x-large"
+                    size="large"
                     :loading="loadingHabilitar"
                     @click="habilitarEleitor"
-                    class="px-8"
+                    class="px-6 px-sm-8"
+                    block
                   >
-                    <v-icon left>mdi-check-circle</v-icon>
+                    <v-icon class="mr-2">mdi-check-circle</v-icon>
                     AUTORIZAR VOTO
                   </v-btn>
                 </div>
@@ -165,31 +292,43 @@
         </v-row>
 
         <!-- Dialog para mostrar credencial -->
-        <v-dialog v-model="dialogCredencial" max-width="400">
+        <v-dialog v-model="dialogCredencial" max-width="500" persistent>
           <v-card>
-            <v-card-title class="text-center">
-              <h3 class="text-h5">Credencial Gerada</h3>
+            <v-card-title class="text-center bg-success pa-4">
+              <h3 class="text-h5 text-white">
+                <v-icon color="white" size="large" class="mr-2">mdi-check-circle</v-icon>
+                Credencial Gerada
+              </h3>
             </v-card-title>
             
-            <v-card-text class="text-center">
-              <v-icon size="64" color="success" class="mb-4">
+            <v-card-text class="text-center pa-6">
+              <v-icon size="80" color="success" class="mb-4">
                 mdi-key
               </v-icon>
-              <p class="text-h6 font-weight-bold mb-4">
+              <p class="text-h5 font-weight-bold mb-4 pa-4 bg-grey-lighten-4 rounded">
                 {{ credencialGerada }}
               </p>
-              <p class="text-body-2 grey--text">
+              <v-alert type="warning" variant="tonal" class="mb-4">
+                <v-icon left>mdi-clock-alert</v-icon>
+                <strong>Validade: 5 minutos</strong>
+              </v-alert>
+              <p class="text-body-1 mb-2">
                 Forneça esta credencial ao eleitor para que ele possa votar.
+              </p>
+              <p class="text-body-2 text-grey">
+                Expira em: <strong>{{ expiracaoCredencial }}</strong>
               </p>
             </v-card-text>
             
-            <v-card-actions>
+            <v-card-actions class="pa-4">
               <v-spacer />
               <v-btn
                 color="primary"
-                @click="dialogCredencial = false"
+                size="large"
+                @click="fecharDialogCredencial"
               >
-                Fechar
+                <v-icon left>mdi-check</v-icon>
+                Entendido
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -211,13 +350,19 @@ export default {
   },
   data() {
     return {
+      eleicoes: [],
+      eleicaoSelecionada: null,
       matricula: '',
       eleitor: null,
+      eleitores: [],
+      searchEleitores: '',
       loading: false,
       loadingHabilitar: false,
+      loadingEleitores: false,
       error: null,
       dialogCredencial: false,
       credencialGerada: '',
+      expiracaoCredencial: '',
       rules: {
         required: value => !!value || 'Campo obrigatório',
         matricula: value => {
@@ -227,7 +372,75 @@ export default {
       }
     }
   },
+  computed: {
+    eleitoresFiltrados() {
+      if (!this.searchEleitores) {
+        return this.eleitores
+      }
+      const search = this.searchEleitores.toLowerCase()
+      return this.eleitores.filter(eleitor => 
+        eleitor.nome.toLowerCase().includes(search) ||
+        eleitor.matricula.toLowerCase().includes(search) ||
+        eleitor.curso.toLowerCase().includes(search)
+      )
+    }
+  },
+  mounted() {
+    this.carregarEleicoes()
+  },
   methods: {
+    async carregarEleicoes() {
+      try {
+        const response = await mesarioService.listarEleicoesAtivas()
+        this.eleicoes = response.eleicoes || []
+      } catch (error) {
+        console.error('Erro ao carregar eleições:', error)
+        this.error = 'Erro ao carregar eleições ativas'
+      }
+    },
+    async selecionarEleicao(eleicao) {
+      this.eleicaoSelecionada = eleicao
+      this.matricula = ''
+      this.eleitor = null
+      this.error = null
+      this.eleitores = []
+      this.searchEleitores = ''
+      await this.carregarEleitores()
+    },
+    voltarSelecaoEleicao() {
+      this.eleicaoSelecionada = null
+      this.matricula = ''
+      this.eleitor = null
+      this.eleitores = []
+      this.searchEleitores = ''
+      this.error = null
+    },
+    async carregarEleitores() {
+      if (!this.eleicaoSelecionada) return
+      
+      this.loadingEleitores = true
+      try {
+        const response = await mesarioService.listarEleitoresAptos(this.eleicaoSelecionada.id)
+        this.eleitores = response.eleitores || []
+      } catch (error) {
+        console.error('Erro ao carregar eleitores:', error)
+        this.error = 'Erro ao carregar lista de eleitores'
+      } finally {
+        this.loadingEleitores = false
+      }
+    },
+    selecionarEleitorDaLista(eleitor) {
+      this.matricula = eleitor.matricula
+      this.eleitor = eleitor
+      this.error = null
+      // Scroll para a seção de dados do eleitor
+      this.$nextTick(() => {
+        const eleitorCard = document.querySelector('.v-row:has(.v-card)')
+        if (eleitorCard) {
+          eleitorCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      })
+    },
     async buscarEleitor() {
       const { valid } = await this.$refs.formEleitor.validate()
       if (!valid) return
@@ -237,7 +450,7 @@ export default {
       this.eleitor = null
 
       try {
-        const response = await mesarioService.buscarEleitor(this.matricula)
+        const response = await mesarioService.buscarEleitor(this.matricula, this.eleicaoSelecionada.id)
         this.eleitor = response.eleitor
       } catch (error) {
         this.error = error.error || 'Eleitor não encontrado'
@@ -248,21 +461,44 @@ export default {
     async habilitarEleitor() {
       if (!this.eleitor) return
 
+      if (!confirm('Tem certeza que deseja autorizar este eleitor para votar?')) {
+        return
+      }
+
       this.loadingHabilitar = true
       this.error = null
 
       try {
-        const response = await mesarioService.habilitarEleitor(this.matricula)
+        const response = await mesarioService.habilitarEleitor(this.matricula, this.eleicaoSelecionada.id)
         this.credencialGerada = response.credencial
+        
+        // Formatar data de expiração
+        if (response.expiresAt) {
+          const expiresAt = new Date(response.expiresAt)
+          this.expiracaoCredencial = expiresAt.toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit'
+          })
+        }
+        
         this.dialogCredencial = true
         
-        // Atualizar status do eleitor
-        this.eleitor.jaVotou = true
+        // Nota: O status "já votou" NÃO é atualizado aqui
+        // Ele só será atualizado após a confirmação do voto na urna
       } catch (error) {
         this.error = error.error || 'Erro ao habilitar eleitor'
       } finally {
         this.loadingHabilitar = false
       }
+    },
+    fecharDialogCredencial() {
+      this.dialogCredencial = false
+      // Recarregar lista de eleitores para atualizar status
+      this.carregarEleitores()
+      // Limpar seleção
+      this.matricula = ''
+      this.eleitor = null
     },
     async handleLogout() {
       await this.authStore.logout()
@@ -275,5 +511,54 @@ export default {
 <style scoped>
 .v-card {
   border-radius: 16px;
+}
+
+.back-button-mesario {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+/* Garantir que títulos não sejam cortados */
+h1, h2, h3, h4, h5, h6 {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.2;
+}
+
+/* Títulos específicos em cards */
+.v-card h2, .v-card h3 {
+  min-height: 1.5em;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Lista de eleitores */
+.v-list-item-title {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+.v-list-item-subtitle {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+/* Mobile optimizations */
+@media (max-width: 599px) {
+  .v-card {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 959px) {
+  .back-button-mesario {
+    position: relative;
+    margin-bottom: 8px;
+  }
 }
 </style>

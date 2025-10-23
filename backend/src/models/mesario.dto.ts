@@ -20,4 +20,8 @@ export class HabilitarEleitorDto {
   @IsString()
   @IsNotEmpty()
   matricula!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  eleicaoId!: string;
 }

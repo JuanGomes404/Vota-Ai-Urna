@@ -31,6 +31,19 @@ export const useEleicaoStore = defineStore('eleicao', {
       }
     },
 
+    async buscarEleicao(eleicaoId) {
+      this.loading = true
+      try {
+        const response = await adminService.buscarEleicao(eleicaoId)
+        return response
+      } catch (error) {
+        console.error('Erro ao buscar eleição:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
     async criarEleicao(eleicaoData) {
       this.loading = true
       try {
@@ -70,30 +83,10 @@ export const useEleicaoStore = defineStore('eleicao', {
       }
     },
 
-    async carregarChapas(eleicaoId) {
-      try {
-        const response = await adminService.listarChapas(eleicaoId)
-        this.chapas = response
-        return response
-      } catch (error) {
-        throw error
-      }
-    },
-
     async criarChapa(chapaData) {
       try {
         const response = await adminService.criarChapa(chapaData)
         this.chapas.push(response)
-        return response
-      } catch (error) {
-        throw error
-      }
-    },
-
-    async carregarEleitores(eleicaoId) {
-      try {
-        const response = await adminService.listarEleitores(eleicaoId)
-        this.eleitores = response
         return response
       } catch (error) {
         throw error

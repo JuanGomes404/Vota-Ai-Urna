@@ -1,24 +1,36 @@
 <template>
   <v-app>
-    <v-app-bar color="primary" dark>
-      <v-app-bar-title>
-        <v-icon left>mdi-cog</v-icon>
-        Painel do Administrador
+    <v-app-bar color="primary" dark density="comfortable">
+      <v-app-bar-title class="d-flex align-center">
+        <v-icon class="mr-2">mdi-cog</v-icon>
+        <span class="d-none d-sm-inline">Painel do Administrador</span>
+        <span class="d-inline d-sm-none">Admin</span>
       </v-app-bar-title>
       
       <v-spacer />
       
+      <v-btn
+        color="white"
+        variant="text"
+        @click="$router.push('/')"
+        size="small"
+        class="mr-1 mr-sm-2"
+      >
+        <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-home</v-icon>
+        <span class="d-none d-sm-inline">Início</span>
+      </v-btn>
+      
       <v-menu>
         <template v-slot:activator="{ props }">
-          <v-btn color="white" variant="text" v-bind="props">
-            <v-icon left>mdi-account</v-icon>
-            {{ authStore.userName }}
+          <v-btn color="white" variant="text" v-bind="props" size="small">
+            <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-account</v-icon>
+            <span class="d-none d-sm-inline">{{ authStore.userName }}</span>
           </v-btn>
         </template>
         <v-list>
           <v-list-item @click="handleLogout">
             <v-list-item-title>
-              <v-icon left>mdi-logout</v-icon>
+              <v-icon class="mr-2">mdi-logout</v-icon>
               Sair
             </v-list-item-title>
           </v-list-item>
@@ -27,17 +39,17 @@
     </v-app-bar>
 
     <v-main>
-      <v-container fluid class="pa-8">
+      <v-container fluid class="pa-4 pa-sm-6 pa-md-8">
         <v-row>
           <v-col cols="12">
-            <h1 class="text-h3 font-weight-bold mb-6">
+            <h1 class="text-h5 text-sm-h4 text-md-h3 font-weight-bold mb-4 mb-md-6" style="color: #005A9C;">
               PAINEL DO ADMINISTRADOR
             </h1>
           </v-col>
         </v-row>
 
-        <v-row class="mb-6">
-          <v-col cols="12" md="4">
+        <v-row class="mb-4 mb-md-6">
+          <v-col cols="12" sm="6" md="4">
             <v-card elevation="4" class="pa-4 text-center">
               <v-icon size="48" color="primary" class="mb-3">
                 mdi-vote
@@ -49,42 +61,55 @@
             </v-card>
           </v-col>
           
-          <v-col cols="12" md="4">
+          <v-col cols="12" sm="6" md="4">
             <v-card elevation="4" class="pa-4 text-center">
               <v-icon size="48" color="success" class="mb-3">
                 mdi-check-circle
               </v-icon>
               <h3 class="text-h6 mb-2">Eleições Encerradas</h3>
-              <p class="text-h4 font-weight-bold success--text">
+              <p class="text-h4 font-weight-bold" style="color: #00843D;">
                 {{ eleicaoStore.eleicoesEncerradas.length }}
               </p>
             </v-card>
           </v-col>
           
-          <v-col cols="12" md="4">
+          <v-col cols="12" sm="6" md="4">
             <v-card elevation="4" class="pa-4 text-center">
               <v-icon size="48" color="warning" class="mb-3">
                 mdi-file-document-outline
               </v-icon>
               <h3 class="text-h6 mb-2">Rascunhos</h3>
-              <p class="text-h4 font-weight-bold warning--text">
+              <p class="text-h4 font-weight-bold" style="color: #FDB913;">
                 {{ eleicaoStore.eleicoesCriadas.length }}
               </p>
             </v-card>
           </v-col>
         </v-row>
 
-        <v-row class="mb-6">
-          <v-col cols="12" class="text-right">
+        <v-row class="mb-4 mb-md-6">
+          <v-col cols="12">
             <v-btn
               color="primary"
               size="large"
               @click="criarEleicao"
               :loading="loading"
+              block
+              class="d-sm-none"
             >
-              <v-icon left>mdi-plus</v-icon>
+              <v-icon class="mr-2">mdi-plus</v-icon>
               CRIAR ELEIÇÃO
             </v-btn>
+            <div class="text-right d-none d-sm-block">
+              <v-btn
+                color="primary"
+                size="large"
+                @click="criarEleicao"
+                :loading="loading"
+              >
+                <v-icon class="mr-2">mdi-plus</v-icon>
+                CRIAR ELEIÇÃO
+              </v-btn>
+            </div>
           </v-col>
         </v-row>
 
@@ -152,6 +177,7 @@
                   </v-chip>
                 </v-col>
                 <v-col cols="12" md="6" class="text-right">
+                  <!-- Eleições Encerradas: Ver Resultados -->
                   <v-btn
                     v-if="eleicao.status === 'Encerrada'"
                     color="info"
@@ -162,8 +188,31 @@
                     <v-icon left>mdi-chart-line</v-icon>
                     Resultados
                   </v-btn>
+                  
+                  <!-- Eleições Criadas (Rascunho): Gerenciar E Iniciar -->
+                  <template v-if="eleicao.status === 'Criada'">
+                    <v-btn
+                      color="primary"
+                      variant="outlined"
+                      class="mr-2"
+                      @click="gerenciarEleicao(eleicao)"
+                    >
+                      <v-icon left>mdi-cog</v-icon>
+                      Gerenciar
+                    </v-btn>
+                    <v-btn
+                      color="success"
+                      variant="outlined"
+                      @click="iniciarEleicao(eleicao.id)"
+                    >
+                      <v-icon left>mdi-play-circle</v-icon>
+                      Iniciar
+                    </v-btn>
+                  </template>
+                  
+                  <!-- Eleições Ativas: Apenas Gerenciar -->
                   <v-btn
-                    v-else
+                    v-if="eleicao.status === 'Ativa'"
                     color="primary"
                     variant="outlined"
                     @click="gerenciarEleicao(eleicao)"
@@ -271,6 +320,10 @@ export default {
       const { valid } = await this.$refs.formEleicao.validate()
       if (!valid) return
 
+      if (!confirm('Tem certeza que deseja criar esta eleição?')) {
+        return
+      }
+
       this.loading = true
       try {
         await this.eleicaoStore.criarEleicao(this.novaEleicao)
@@ -300,6 +353,18 @@ export default {
     verResultados(eleicaoId) {
       this.$router.push(`/admin/resultados/${eleicaoId}`)
     },
+    async iniciarEleicao(eleicaoId) {
+      if (confirm('Tem certeza que deseja INICIAR esta eleição? Uma vez iniciada, estará aberta para votação.')) {
+        this.loading = true
+        try {
+          await this.eleicaoStore.ativarEleicao(eleicaoId)
+        } catch (error) {
+          console.error('Erro ao iniciar eleição:', error)
+        } finally {
+          this.loading = false
+        }
+      }
+    },
     async handleLogout() {
       await this.authStore.logout()
       this.$router.push('/')
@@ -311,5 +376,27 @@ export default {
 <style scoped>
 .v-card {
   border-radius: 12px;
+}
+
+/* Garantir que títulos não sejam cortados */
+h1, h2, h3, h4, h5, h6 {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.2;
+}
+
+/* Títulos específicos em cards */
+.v-card h3 {
+  min-height: 1.5em;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Descrições em cards */
+.v-card .text-body-2 {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }
 </style>

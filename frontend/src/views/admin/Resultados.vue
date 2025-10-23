@@ -1,9 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar color="primary" dark>
-      <v-app-bar-title>
-        <v-icon left>mdi-chart-line</v-icon>
-        Resultados da Eleição
+    <v-app-bar color="primary" dark density="comfortable">
+      <v-app-bar-title class="d-flex align-center">
+        <v-icon class="mr-2">mdi-chart-line</v-icon>
+        <span class="d-none d-sm-inline">Resultados da Eleição</span>
+        <span class="d-inline d-sm-none">Resultados</span>
       </v-app-bar-title>
       
       <v-spacer />
@@ -12,14 +13,26 @@
         color="white"
         variant="text"
         @click="$router.push('/admin')"
+        size="small"
+        class="mr-1 mr-sm-2"
       >
-        <v-icon left>mdi-arrow-left</v-icon>
-        Voltar
+        <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-arrow-left</v-icon>
+        <span class="d-none d-sm-inline">Voltar</span>
+      </v-btn>
+      
+      <v-btn
+        color="white"
+        variant="text"
+        @click="$router.push('/')"
+        size="small"
+      >
+        <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-home</v-icon>
+        <span class="d-none d-sm-inline">Início</span>
       </v-btn>
     </v-app-bar>
 
     <v-main>
-      <v-container fluid class="pa-8">
+      <v-container fluid class="pa-4 pa-sm-6 pa-md-8">
         <v-row>
           <v-col cols="12">
             <h1 class="text-h3 font-weight-bold mb-6">
@@ -52,6 +65,13 @@
               </v-card-title>
               <v-card-text>
                 <v-list>
+                  <v-list-item>
+                    <v-list-item-title>Total de Eleitores</v-list-item-title>
+                    <v-list-item-subtitle class="text-h6 font-weight-bold">
+                      {{ totalEleitores }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                  
                   <v-list-item>
                     <v-list-item-title>Total de Votos</v-list-item-title>
                     <v-list-item-subtitle class="text-h6 font-weight-bold">
@@ -108,6 +128,11 @@
                   <template v-slot:item.votos="{ item }">
                     <span class="font-weight-bold">{{ item.votos }}</span>
                   </template>
+                  <template v-slot:item.numero="{ item }">
+                    <v-chip color="primary" size="small">
+                      {{ item.numero }}
+                    </v-chip>
+                  </template>
                   <template v-slot:item.percentual="{ item }">
                     <v-progress-linear
                       :model-value="item.percentual"
@@ -116,7 +141,7 @@
                       rounded
                     >
                       <template v-slot:default="{ value }">
-                        <strong>{{ Math.ceil(value) }}%</strong>
+                        <strong>{{ value.toFixed(1) }}%</strong>
                       </template>
                     </v-progress-linear>
                   </template>
@@ -132,6 +157,7 @@
 
 <script>
 import { Chart, registerables } from 'chart.js'
+import { adminService } from '@/services/adminService'
 
 Chart.register(...registerables)
 
@@ -141,6 +167,7 @@ export default {
     return {
       eleicao: null,
       loading: false,
+      totalEleitores: 0,
       totalVotos: 0,
       votosValidos: 0,
       votosBrancos: 0,
@@ -148,6 +175,7 @@ export default {
       abstencoes: 0,
       resultadosChapas: [],
       headersResultados: [
+        { title: 'Número', key: 'numero' },
         { title: 'Chapa', key: 'nome' },
         { title: 'Votos', key: 'votos' },
         { title: 'Percentual', key: 'percentual' }
@@ -156,31 +184,30 @@ export default {
   },
   async mounted() {
     await this.carregarResultados()
-    this.criarGrafico()
+    if (this.resultadosChapas.length > 0) {
+      this.criarGrafico()
+    }
   },
   methods: {
     async carregarResultados() {
       this.loading = true
       try {
         const eleicaoId = this.$route.params.id
-        // Em produção, carregar resultados reais
-        this.eleicao = { id: eleicaoId, nome: 'Eleição de Exemplo' }
         
-        // Dados de exemplo
-        this.resultadosChapas = [
-          { nome: 'Chapa Inovação', votos: 600, percentual: 48 },
-          { nome: 'Chapa Avança', votos: 400, percentual: 32 },
-          { nome: 'Votos em Branco', votos: 150, percentual: 12 },
-          { nome: 'Votos Nulos', votos: 100, percentual: 8 }
-        ]
+        // Carregar resultados reais da API
+        const resultado = await adminService.visualizarResultado(eleicaoId)
         
-        this.totalVotos = 1250
-        this.votosValidos = 1000
-        this.votosBrancos = 150
-        this.votosNulos = 100
-        this.abstencoes = 350
+        this.eleicao = resultado.eleicao
+        this.totalEleitores = resultado.totalEleitores || 0
+        this.totalVotos = resultado.totalVotos || 0
+        this.votosValidos = resultado.votosValidos || 0
+        this.votosBrancos = resultado.votosBrancos || 0
+        this.votosNulos = resultado.votosNulos || 0
+        this.abstencoes = resultado.abstencoes || 0
+        this.resultadosChapas = resultado.chapas || []
       } catch (error) {
         console.error('Erro ao carregar resultados:', error)
+        alert('Erro ao carregar resultados: ' + (error.error || error.message || 'Erro desconhecido'))
       } finally {
         this.loading = false
       }
@@ -188,18 +215,35 @@ export default {
     criarGrafico() {
       const ctx = this.$refs.chartCanvas.getContext('2d')
       
+      // Preparar dados para o gráfico (incluir brancos e nulos)
+      const labels = [...this.resultadosChapas.map(item => `${item.numero} - ${item.nome}`)]
+      const votos = [...this.resultadosChapas.map(item => item.votos)]
+      
+      if (this.votosBrancos > 0) {
+        labels.push('Votos em Branco')
+        votos.push(this.votosBrancos)
+      }
+      
+      if (this.votosNulos > 0) {
+        labels.push('Votos Nulos')
+        votos.push(this.votosNulos)
+      }
+      
+      // Gerar cores dinamicamente
+      const baseColors = ['#1976D2', '#388E3C', '#FFA000', '#9C27B0', '#FF5722', '#00BCD4']
+      const colors = votos.map((_, index) => {
+        if (labels[index] === 'Votos em Branco') return '#9E9E9E'
+        if (labels[index] === 'Votos Nulos') return '#D32F2F'
+        return baseColors[index % baseColors.length]
+      })
+      
       new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: this.resultadosChapas.map(item => item.nome),
+          labels: labels,
           datasets: [{
-            data: this.resultadosChapas.map(item => item.votos),
-            backgroundColor: [
-              '#1976D2',
-              '#388E3C',
-              '#FFA000',
-              '#D32F2F'
-            ],
+            data: votos,
+            backgroundColor: colors,
             borderWidth: 2,
             borderColor: '#fff'
           }]
@@ -231,6 +275,21 @@ export default {
 <style scoped>
 .v-card {
   border-radius: 12px;
+}
+
+/* Garantir que títulos não sejam cortados */
+h1, h2, h3, h4, h5, h6 {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.2;
+}
+
+/* Títulos específicos em cards */
+.v-card h3 {
+  min-height: 1.5em;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .chart-container {

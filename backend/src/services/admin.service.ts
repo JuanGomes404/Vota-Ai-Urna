@@ -18,6 +18,10 @@ export class AdminService {
     return await this.adminRepository.listarEleicoes();
   }
 
+  async buscarEleicao(eleicaoId: string) {
+    return await this.adminRepository.buscarEleicao(eleicaoId);
+  }
+
   async criarEleicao(eleicaoDto: EleicaoDto) {
     return await this.adminRepository.criarEleicao(eleicaoDto);
   }
