@@ -174,46 +174,49 @@
 
     <!-- Dialog de Confirmação -->
     <v-dialog v-model="dialogConfirmacao" max-width="600" persistent>
-      <v-card>
-        <v-card-title class="text-h5 text-center py-4 bg-primary">
-          <v-icon left size="large" color="white">mdi-check-circle</v-icon>
-          <span class="text-white">Confirmação de Voto</span>
+      <v-card rounded="lg">
+        <v-card-title class="text-h5 font-weight-bold text-center pa-6 bg-primary">
+          <div class="d-flex align-center justify-center w-100">
+            <v-icon size="large" color="white" class="mr-2">mdi-check-circle</v-icon>
+            <span class="text-white">Confirmação de Voto</span>
+          </div>
         </v-card-title>
         
         <v-card-text class="pa-6">
-          <v-alert type="warning" class="mb-4">
+          <v-alert type="warning" variant="tonal" prominent class="mb-4">
+            <v-icon left>mdi-alert</v-icon>
             <strong>ATENÇÃO:</strong> Após confirmar, seu voto não poderá ser alterado!
           </v-alert>
 
           <div class="text-center py-4">
-            <p class="text-h6 mb-4">Você selecionou:</p>
+            <p class="text-h6 mb-4 font-weight-bold">Você selecionou:</p>
             
             <!-- Mostrar chapa selecionada -->
-            <v-card v-if="tipoVoto === 'valido'" elevation="2" class="pa-4 mb-4">
-              <v-chip color="primary" size="x-large" class="mb-2">
+            <v-card v-if="tipoVoto === 'valido'" elevation="4" rounded="lg" class="pa-6 mb-4 bg-grey-lighten-4">
+              <v-chip color="primary" size="x-large" class="mb-3">
                 {{ chapaEscolhida?.numero }}
               </v-chip>
-              <h3 class="text-h5 font-weight-bold">
+              <h3 class="text-h4 font-weight-bold">
                 {{ chapaEscolhida?.nome }}
               </h3>
             </v-card>
             
             <!-- Mostrar voto em branco -->
-            <v-card v-else-if="tipoVoto === 'branco'" elevation="2" class="pa-4 mb-4">
-              <v-icon size="80" color="grey" class="mb-2">
+            <v-card v-else-if="tipoVoto === 'branco'" elevation="4" rounded="lg" class="pa-6 mb-4 bg-grey-lighten-4">
+              <v-icon size="80" color="grey" class="mb-3">
                 mdi-checkbox-blank-outline
               </v-icon>
-              <h3 class="text-h5 font-weight-bold">
+              <h3 class="text-h4 font-weight-bold">
                 VOTO EM BRANCO
               </h3>
             </v-card>
             
             <!-- Mostrar voto nulo -->
-            <v-card v-else-if="tipoVoto === 'nulo'" elevation="2" class="pa-4 mb-4">
-              <v-icon size="80" color="error" class="mb-2">
+            <v-card v-else-if="tipoVoto === 'nulo'" elevation="4" rounded="lg" class="pa-6 mb-4 bg-grey-lighten-4">
+              <v-icon size="80" color="error" class="mb-3">
                 mdi-close-circle-outline
               </v-icon>
-              <h3 class="text-h5 font-weight-bold">
+              <h3 class="text-h4 font-weight-bold">
                 VOTO NULO
               </h3>
             </v-card>
@@ -235,11 +238,39 @@
           <v-btn
             color="success"
             size="large"
+            variant="elevated"
             @click="confirmarVoto"
             :loading="loading"
           >
-            <v-icon left>mdi-check</v-icon>
+            <v-icon left>mdi-check-bold</v-icon>
             CONFIRMAR VOTO
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog de Alerta -->
+    <v-dialog v-model="dialogAlerta" max-width="500" persistent>
+      <v-card rounded="lg">
+        <v-card-title class="text-h5 font-weight-bold pa-6 bg-error">
+          <div class="d-flex align-center justify-center w-100">
+            <v-icon color="white" class="mr-2">mdi-alert</v-icon>
+            <span class="text-white">Atenção</span>
+          </div>
+        </v-card-title>
+        <v-card-text class="pa-6 text-center">
+          <p class="text-h6 mb-0">{{ mensagemAlerta }}</p>
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <v-btn
+            color="error"
+            size="large"
+            variant="elevated"
+            @click="confirmarAlerta"
+          >
+            <v-icon left>mdi-check</v-icon>
+            OK
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -263,7 +294,11 @@ export default {
       error: null,
       // Cronômetro de 5 minutos (300 segundos)
       tempoRestante: 300,
-      intervaloCronometro: null
+      intervaloCronometro: null,
+      // Variáveis para alerta
+      dialogAlerta: false,
+      mensagemAlerta: '',
+      acaoAposAlerta: null
     }
   },
   computed: {
@@ -302,11 +337,22 @@ export default {
     },
     tempoEsgotado() {
       this.pararCronometro()
-      alert('Tempo esgotado! Você será redirecionado para a tela inicial.')
-      // Limpar credenciais
-      localStorage.removeItem('urna_credencial')
-      localStorage.removeItem('urna_eleicao_id')
-      this.$router.push('/urna')
+      this.mensagemAlerta = 'Tempo esgotado! Você será redirecionado para a tela inicial.'
+      this.acaoAposAlerta = () => {
+        // Limpar credenciais
+        localStorage.removeItem('urna_credencial')
+        localStorage.removeItem('urna_eleicao_id')
+        this.$router.push('/urna')
+      }
+      this.dialogAlerta = true
+    },
+    confirmarAlerta() {
+      this.dialogAlerta = false
+      if (this.acaoAposAlerta) {
+        this.acaoAposAlerta()
+        this.acaoAposAlerta = null
+      }
+      this.mensagemAlerta = ''
     },
     async carregarDados() {
       try {

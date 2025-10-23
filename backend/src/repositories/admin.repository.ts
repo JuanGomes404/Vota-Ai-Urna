@@ -56,6 +56,41 @@ export class AdminRepository {
     });
   }
 
+  /**
+   * Deletar chapa
+   * Verifica se a eleição está ativa antes de permitir exclusão
+   */
+  async deletarChapa(chapaId: string) {
+    // Buscar chapa para verificar eleição
+    const chapa = await this.prisma.chapa.findUnique({
+      where: { id: chapaId },
+      include: { eleicao: true }
+    });
+
+    if (!chapa) {
+      throw new Error('Chapa não encontrada');
+    }
+
+    // RN03: Não permitir exclusão se eleição está ativa
+    if (chapa.eleicao.ativa) {
+      throw new Error('Não é possível remover chapa de uma eleição ativa');
+    }
+
+    // Verificar se há votos para esta chapa
+    const votosCount = await this.prisma.voto.count({
+      where: { chapaId: chapaId }
+    });
+
+    if (votosCount > 0) {
+      throw new Error('Não é possível remover chapa que já possui votos');
+    }
+
+    // Deletar chapa
+    return await this.prisma.chapa.delete({
+      where: { id: chapaId }
+    });
+  }
+
   // RN02: Eleição deve ter lista de eleitores
   async importarEleitores(eleitores: any[]) {
     const eleitoresProcessados = [];

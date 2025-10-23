@@ -1,10 +1,10 @@
 <template>
   <v-container fluid class="home-container pa-0">
     <v-app-bar color="primary" dark elevation="4" density="comfortable">
-      <v-app-bar-title class="d-flex align-center">
+      <v-app-bar-title class="d-flex align-center header-title">
         <v-icon class="mr-2">mdi-vote</v-icon>
-        <span class="d-none d-sm-inline">Vota AI - Sistema de Votação Eletrônica</span>
-        <span class="d-inline d-sm-none">Vota AI</span>
+        <span class="d-none d-sm-inline">Vota Aí! - Sistema de Votação Acadêmica</span>
+        <span class="d-inline d-sm-none">Vota Aí!</span>
       </v-app-bar-title>
       
       <v-spacer />
@@ -42,15 +42,6 @@
       <v-row justify="center">
         <v-col cols="12" sm="11" md="10" lg="9" xl="8">
           <v-card elevation="4" class="pa-4 pa-sm-6 pa-md-8">
-            <v-card-title class="text-center mb-4 mb-md-6 px-0">
-              <h1 class="text-h5 text-sm-h4 text-md-h3 font-weight-bold" style="color: #005A9C;">
-                Sistema de Votação Eletrônica
-              </h1>
-              <p class="text-body-1 text-sm-h6 mt-2" style="color: #666;">
-                Vota Ai - Sistema de Votação Eletrônica Universitária
-              </p>
-            </v-card-title>
-
           <v-row class="mt-4 mt-md-8">
             <v-col cols="12" md="6" class="mb-4 mb-md-0">
               <v-card
@@ -179,12 +170,39 @@ export default {
   transform: translateY(-4px);
 }
 
+/* Estilo para o título do cabeçalho */
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+@media (max-width: 959px) {
+  .header-title {
+    font-size: 1rem;
+  }
+}
+
 /* Garantir que títulos não sejam cortados */
 h1, h2, h3, h4, h5, h6 {
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  line-height: 1.2;
+  line-height: 1.3;
+}
+
+/* Título principal */
+.main-title {
+  line-height: 1.4;
+  margin-bottom: 8px;
+  padding: 0;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.subtitle-text {
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 /* Títulos específicos em cards */

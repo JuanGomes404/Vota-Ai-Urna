@@ -180,12 +180,13 @@
         </v-window>
 
         <!-- Dialog para criar chapa -->
-        <v-dialog v-model="dialogChapa" max-width="500">
-          <v-card>
-            <v-card-title>
-              <h3 class="text-h5">Nova Chapa</h3>
+        <v-dialog v-model="dialogChapa" max-width="500" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-primary">
+              <v-icon color="white" class="mr-2">mdi-account-group</v-icon>
+              <span class="text-white">Nova Chapa</span>
             </v-card-title>
-            <v-card-text>
+            <v-card-text class="pa-6">
               <v-form ref="formChapa" @submit.prevent="salvarChapa">
                 <v-text-field
                   v-model="novaChapa.numero"
@@ -193,6 +194,7 @@
                   type="number"
                   :rules="[rules.required]"
                   variant="outlined"
+                  prepend-inner-icon="mdi-numeric"
                   class="mb-4"
                 />
                 <v-text-field
@@ -200,22 +202,29 @@
                   label="Nome da Chapa"
                   :rules="[rules.required]"
                   variant="outlined"
+                  prepend-inner-icon="mdi-text"
                 />
               </v-form>
             </v-card-text>
-            <v-card-actions>
+            <v-card-actions class="pa-4">
               <v-spacer />
               <v-btn
-                variant="text"
+                variant="outlined"
+                color="grey"
+                size="large"
                 @click="dialogChapa = false"
+                :disabled="loading"
               >
                 Cancelar
               </v-btn>
               <v-btn
                 color="primary"
+                size="large"
                 @click="salvarChapa"
                 :loading="loading"
+                variant="elevated"
               >
+                <v-icon left>mdi-check</v-icon>
                 Criar Chapa
               </v-btn>
             </v-card-actions>
@@ -223,12 +232,13 @@
         </v-dialog>
 
         <!-- Dialog para importar eleitores -->
-        <v-dialog v-model="dialogImportacao" max-width="800">
-          <v-card>
-            <v-card-title>
-              <h3 class="text-h5">Importar Eleitores</h3>
+        <v-dialog v-model="dialogImportacao" max-width="900" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-primary">
+              <v-icon color="white" class="mr-2">mdi-upload</v-icon>
+              <span class="text-white">Importar Eleitores</span>
             </v-card-title>
-            <v-card-text>
+            <v-card-text class="pa-6">
               <v-alert
                 v-if="importacaoErrors.length > 0"
                 type="error"
@@ -276,21 +286,79 @@
                 />
               </v-card>
             </v-card-text>
-            <v-card-actions>
+            <v-card-actions class="pa-4">
+              <v-spacer />
+              <!-- Mostrar apenas OK quando a importação for bem-sucedida -->
+              <template v-if="importacaoSuccess">
+                <v-btn
+                  color="success"
+                  size="large"
+                  variant="elevated"
+                  @click="fecharDialogImportacao"
+                >
+                  <v-icon left>mdi-check</v-icon>
+                  OK
+                </v-btn>
+              </template>
+              <!-- Mostrar botões de Cancelar/Importar antes da importação -->
+              <template v-else>
+                <v-btn
+                  variant="outlined"
+                  color="grey"
+                  size="large"
+                  @click="fecharDialogImportacao"
+                  :disabled="loading"
+                >
+                  Cancelar
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  size="large"
+                  variant="elevated"
+                  @click="confirmarImportacao"
+                  :loading="loading"
+                  :disabled="previewEleitores.length === 0 || importacaoErrors.length > 0"
+                >
+                  <v-icon left>mdi-upload</v-icon>
+                  Importar {{ previewEleitores.length }} Eleitores
+                </v-btn>
+              </template>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Dialog de Confirmação Genérico -->
+        <v-dialog v-model="dialogConfirmacao" max-width="500" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-warning">
+              <div class="d-flex align-center justify-center w-100">
+                <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
+                <span class="text-white">Confirmação</span>
+              </div>
+            </v-card-title>
+            <v-card-text class="pa-6 text-center">
+              <p class="text-h6 mb-0">{{ mensagemConfirmacao }}</p>
+            </v-card-text>
+            <v-card-actions class="pa-4">
               <v-spacer />
               <v-btn
-                variant="text"
-                @click="fecharDialogImportacao"
+                variant="outlined"
+                color="grey"
+                size="large"
+                @click="cancelarConfirmacao"
+                :disabled="loading"
               >
                 Cancelar
               </v-btn>
               <v-btn
-                color="primary"
-                @click="confirmarImportacao"
+                color="warning"
+                size="large"
+                variant="elevated"
+                @click="confirmarAcao"
                 :loading="loading"
-                :disabled="previewEleitores.length === 0 || importacaoErrors.length > 0"
               >
-                Importar {{ previewEleitores.length }} Eleitores
+                <v-icon left>mdi-check</v-icon>
+                Confirmar
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -327,6 +395,10 @@ export default {
       importacaoErrors: [],
       importacaoSuccess: false,
       importacaoSuccessMessage: '',
+      // Variáveis para confirmação
+      dialogConfirmacao: false,
+      mensagemConfirmacao: '',
+      acaoConfirmada: null,
       headersChapas: [
         { title: 'Número', key: 'numero' },
         { title: 'Nome', key: 'nome' },
@@ -399,10 +471,11 @@ export default {
       const { valid } = await this.$refs.formChapa.validate()
       if (!valid) return
 
-      if (!confirm('Tem certeza que deseja criar esta chapa?')) {
-        return
-      }
-
+      this.mensagemConfirmacao = 'Tem certeza que deseja criar esta chapa?'
+      this.acaoConfirmada = this.executarCriacaoChapa
+      this.dialogConfirmacao = true
+    },
+    async executarCriacaoChapa() {
       this.loading = true
       try {
         const chapaData = {
@@ -417,13 +490,39 @@ export default {
         console.error('Erro ao criar chapa:', error)
       } finally {
         this.loading = false
+        this.dialogConfirmacao = false
       }
     },
     async removerChapa(chapaId) {
-      if (confirm('Tem certeza que deseja remover esta chapa?')) {
-        // Implementar remoção de chapa
-        console.log('Remover chapa:', chapaId)
+      this.mensagemConfirmacao = 'Tem certeza que deseja remover esta chapa?'
+      this.acaoConfirmada = () => this.executarRemocaoChapa(chapaId)
+      this.dialogConfirmacao = true
+    },
+    async executarRemocaoChapa(chapaId) {
+      this.loading = true
+      try {
+        await this.eleicaoStore.deletarChapa(chapaId)
+        // Recarregar dados para atualizar a lista
+        await this.carregarDados()
+      } catch (error) {
+        console.error('Erro ao remover chapa:', error)
+        // Mostrar mensagem de erro se houver
+        const mensagemErro = error.message || 'Erro ao remover chapa'
+        this.$toast?.error(mensagemErro)
+      } finally {
+        this.loading = false
+        this.dialogConfirmacao = false
       }
+    },
+    confirmarAcao() {
+      if (this.acaoConfirmada) {
+        this.acaoConfirmada()
+      }
+    },
+    cancelarConfirmacao() {
+      this.dialogConfirmacao = false
+      this.mensagemConfirmacao = ''
+      this.acaoConfirmada = null
     },
     abrirDialogImportacao() {
       this.dialogImportacao = true
@@ -476,12 +575,14 @@ export default {
         return
       }
 
-      if (!confirm(`Tem certeza que deseja importar ${this.previewEleitores.length} eleitores?`)) {
-        return
-      }
-
+      this.mensagemConfirmacao = `Tem certeza que deseja importar ${this.previewEleitores.length} eleitores?`
+      this.acaoConfirmada = this.executarImportacao
+      this.dialogConfirmacao = true
+    },
+    async executarImportacao() {
       try {
         this.loading = true
+        this.dialogConfirmacao = false
         
         // Importar eleitores via API
         const resultado = await this.eleicaoStore.importarEleitores(this.previewEleitores)

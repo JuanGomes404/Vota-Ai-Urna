@@ -93,6 +93,20 @@ export const useEleicaoStore = defineStore('eleicao', {
       }
     },
 
+    async deletarChapa(chapaId) {
+      try {
+        const response = await adminService.deletarChapa(chapaId)
+        // Remover chapa da lista local
+        const index = this.chapas.findIndex(c => c.id === chapaId)
+        if (index !== -1) {
+          this.chapas.splice(index, 1)
+        }
+        return response
+      } catch (error) {
+        throw error
+      }
+    },
+
     async importarEleitores(eleitores) {
       try {
         const response = await adminService.importarEleitores(eleitores)

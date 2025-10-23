@@ -30,6 +30,10 @@ export class AdminService {
     return await this.adminRepository.criarChapa(chapaDto);
   }
 
+  async deletarChapa(chapaId: string) {
+    return await this.adminRepository.deletarChapa(chapaId);
+  }
+
   async importarEleitores(eleitores: any[]) {
     return await this.adminRepository.importarEleitores(eleitores);
   }

@@ -150,6 +150,33 @@
             </v-card>
           </v-col>
         </v-row>
+
+        <!-- Dialog de Alerta -->
+        <v-dialog v-model="dialogAlerta" max-width="500" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-error">
+              <div class="d-flex align-center justify-center w-100">
+                <v-icon color="white" class="mr-2">mdi-alert</v-icon>
+                <span class="text-white">Erro</span>
+              </div>
+            </v-card-title>
+            <v-card-text class="pa-6 text-center">
+              <p class="text-h6 mb-0">{{ mensagemAlerta }}</p>
+            </v-card-text>
+            <v-card-actions class="pa-4">
+              <v-spacer />
+              <v-btn
+                color="error"
+                size="large"
+                variant="elevated"
+                @click="dialogAlerta = false"
+              >
+                <v-icon left>mdi-check</v-icon>
+                OK
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-main>
   </v-app>
@@ -174,6 +201,9 @@ export default {
       votosNulos: 0,
       abstencoes: 0,
       resultadosChapas: [],
+      // Variáveis para alerta
+      dialogAlerta: false,
+      mensagemAlerta: '',
       headersResultados: [
         { title: 'Número', key: 'numero' },
         { title: 'Chapa', key: 'nome' },
@@ -207,7 +237,8 @@ export default {
         this.resultadosChapas = resultado.chapas || []
       } catch (error) {
         console.error('Erro ao carregar resultados:', error)
-        alert('Erro ao carregar resultados: ' + (error.error || error.message || 'Erro desconhecido'))
+        this.mensagemAlerta = 'Erro ao carregar resultados: ' + (error.error || error.message || 'Erro desconhecido')
+        this.dialogAlerta = true
       } finally {
         this.loading = false
       }

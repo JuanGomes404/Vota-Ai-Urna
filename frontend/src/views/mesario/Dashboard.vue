@@ -293,12 +293,12 @@
 
         <!-- Dialog para mostrar credencial -->
         <v-dialog v-model="dialogCredencial" max-width="500" persistent>
-          <v-card>
-            <v-card-title class="text-center bg-success pa-4">
-              <h3 class="text-h5 text-white">
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold text-center pa-6 bg-success">
+              <div class="d-flex align-center justify-center w-100">
                 <v-icon color="white" size="large" class="mr-2">mdi-check-circle</v-icon>
-                Credencial Gerada
-              </h3>
+                <span class="text-white">Credencial Gerada</span>
+              </div>
             </v-card-title>
             
             <v-card-text class="text-center pa-6">
@@ -323,12 +323,50 @@
             <v-card-actions class="pa-4">
               <v-spacer />
               <v-btn
-                color="primary"
+                color="success"
                 size="large"
+                variant="elevated"
                 @click="fecharDialogCredencial"
               >
                 <v-icon left>mdi-check</v-icon>
                 Entendido
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Dialog de Confirmação Genérico -->
+        <v-dialog v-model="dialogConfirmacao" max-width="500" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-warning">
+              <div class="d-flex align-center justify-center w-100">
+                <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
+                <span class="text-white">Confirmação</span>
+              </div>
+            </v-card-title>
+            <v-card-text class="pa-6 text-center">
+              <p class="text-h6 mb-0">{{ mensagemConfirmacao }}</p>
+            </v-card-text>
+            <v-card-actions class="pa-4">
+              <v-spacer />
+              <v-btn
+                variant="outlined"
+                color="grey"
+                size="large"
+                @click="cancelarConfirmacao"
+                :disabled="loadingHabilitar"
+              >
+                Cancelar
+              </v-btn>
+              <v-btn
+                color="warning"
+                size="large"
+                variant="elevated"
+                @click="confirmarAcao"
+                :loading="loadingHabilitar"
+              >
+                <v-icon left>mdi-check</v-icon>
+                Confirmar
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -363,6 +401,10 @@ export default {
       dialogCredencial: false,
       credencialGerada: '',
       expiracaoCredencial: '',
+      // Variáveis para confirmação
+      dialogConfirmacao: false,
+      mensagemConfirmacao: '',
+      acaoConfirmada: null,
       rules: {
         required: value => !!value || 'Campo obrigatório',
         matricula: value => {
@@ -461,12 +503,14 @@ export default {
     async habilitarEleitor() {
       if (!this.eleitor) return
 
-      if (!confirm('Tem certeza que deseja autorizar este eleitor para votar?')) {
-        return
-      }
-
+      this.mensagemConfirmacao = 'Tem certeza que deseja autorizar este eleitor para votar?'
+      this.acaoConfirmada = this.executarHabilitacaoEleitor
+      this.dialogConfirmacao = true
+    },
+    async executarHabilitacaoEleitor() {
       this.loadingHabilitar = true
       this.error = null
+      this.dialogConfirmacao = false
 
       try {
         const response = await mesarioService.habilitarEleitor(this.matricula, this.eleicaoSelecionada.id)
@@ -499,6 +543,16 @@ export default {
       // Limpar seleção
       this.matricula = ''
       this.eleitor = null
+    },
+    confirmarAcao() {
+      if (this.acaoConfirmada) {
+        this.acaoConfirmada()
+      }
+    },
+    cancelarConfirmacao() {
+      this.dialogConfirmacao = false
+      this.mensagemConfirmacao = ''
+      this.acaoConfirmada = null
     },
     async handleLogout() {
       await this.authStore.logout()

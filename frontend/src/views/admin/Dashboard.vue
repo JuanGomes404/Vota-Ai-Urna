@@ -227,18 +227,21 @@
         </v-row>
 
         <!-- Dialog para criar eleição -->
-        <v-dialog v-model="dialogCriarEleicao" max-width="600">
-          <v-card>
-            <v-card-title>
-              <h3 class="text-h5">Criar Nova Eleição</h3>
+        <v-dialog v-model="dialogCriarEleicao" max-width="600" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-primary">
+              <v-icon color="white" class="mr-2">mdi-plus-circle</v-icon>
+              <span class="text-white">Criar Nova Eleição</span>
             </v-card-title>
             
-            <v-card-text>
+            <v-card-text class="pa-6">
               <v-form ref="formEleicao" @submit.prevent="salvarEleicao">
                 <v-text-field
                   v-model="novaEleicao.nome"
                   label="Nome da Eleição"
                   :rules="[rules.required]"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-text"
                   class="mb-4"
                 />
                 
@@ -246,25 +249,70 @@
                   v-model="novaEleicao.descricao"
                   label="Descrição"
                   rows="3"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-text-box"
                   class="mb-4"
                 />
               </v-form>
             </v-card-text>
             
-            <v-card-actions>
+            <v-card-actions class="pa-4">
               <v-spacer />
               <v-btn
-                variant="text"
+                variant="outlined"
+                color="grey"
+                size="large"
                 @click="dialogCriarEleicao = false"
+                :disabled="loading"
               >
                 Cancelar
               </v-btn>
               <v-btn
                 color="primary"
+                size="large"
+                variant="elevated"
                 @click="salvarEleicao"
                 :loading="loading"
               >
+                <v-icon left>mdi-check</v-icon>
                 Criar Eleição
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Dialog de Confirmação Genérico -->
+        <v-dialog v-model="dialogConfirmacao" max-width="500" persistent>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-warning">
+              <div class="d-flex align-center justify-center w-100">
+                <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
+                <span class="text-white">Confirmação</span>
+              </div>
+            </v-card-title>
+            <v-card-text class="pa-6 text-center">
+              <p class="text-h6 mb-0">{{ mensagemConfirmacao }}</p>
+            </v-card-text>
+            <v-card-actions class="pa-4">
+              <v-spacer />
+              <v-btn
+                variant="outlined"
+                color="grey"
+                size="large"
+                @click="cancelarConfirmacao"
+                :disabled="loading"
+              >
+                Cancelar
+              </v-btn>
+              <v-btn
+                color="warning"
+                size="large"
+                variant="elevated"
+                @click="confirmarAcao"
+                :loading="loading"
+              >
+                <v-icon left>mdi-check</v-icon>
+                Confirmar
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -293,6 +341,10 @@ export default {
         nome: '',
         descricao: ''
       },
+      // Variáveis para confirmação
+      dialogConfirmacao: false,
+      mensagemConfirmacao: '',
+      acaoConfirmada: null,
       rules: {
         required: value => !!value || 'Campo obrigatório'
       }
@@ -320,10 +372,11 @@ export default {
       const { valid } = await this.$refs.formEleicao.validate()
       if (!valid) return
 
-      if (!confirm('Tem certeza que deseja criar esta eleição?')) {
-        return
-      }
-
+      this.mensagemConfirmacao = 'Tem certeza que deseja criar esta eleição?'
+      this.acaoConfirmada = this.executarCriacaoEleicao
+      this.dialogConfirmacao = true
+    },
+    async executarCriacaoEleicao() {
       this.loading = true
       try {
         await this.eleicaoStore.criarEleicao(this.novaEleicao)
@@ -333,37 +386,56 @@ export default {
         console.error('Erro ao criar eleição:', error)
       } finally {
         this.loading = false
+        this.dialogConfirmacao = false
       }
     },
     gerenciarEleicao(eleicao) {
       this.$router.push(`/admin/eleicoes/${eleicao.id}`)
     },
     async encerrarEleicao(eleicaoId) {
-      if (confirm('Tem certeza que deseja encerrar esta eleição?')) {
-        this.loading = true
-        try {
-          await this.eleicaoStore.encerrarEleicao(eleicaoId)
-        } catch (error) {
-          console.error('Erro ao encerrar eleição:', error)
-        } finally {
-          this.loading = false
-        }
+      this.mensagemConfirmacao = 'Tem certeza que deseja encerrar esta eleição?'
+      this.acaoConfirmada = () => this.executarEncerramentoEleicao(eleicaoId)
+      this.dialogConfirmacao = true
+    },
+    async executarEncerramentoEleicao(eleicaoId) {
+      this.loading = true
+      try {
+        await this.eleicaoStore.encerrarEleicao(eleicaoId)
+      } catch (error) {
+        console.error('Erro ao encerrar eleição:', error)
+      } finally {
+        this.loading = false
+        this.dialogConfirmacao = false
       }
     },
     verResultados(eleicaoId) {
       this.$router.push(`/admin/resultados/${eleicaoId}`)
     },
     async iniciarEleicao(eleicaoId) {
-      if (confirm('Tem certeza que deseja INICIAR esta eleição? Uma vez iniciada, estará aberta para votação.')) {
-        this.loading = true
-        try {
-          await this.eleicaoStore.ativarEleicao(eleicaoId)
-        } catch (error) {
-          console.error('Erro ao iniciar eleição:', error)
-        } finally {
-          this.loading = false
-        }
+      this.mensagemConfirmacao = 'Tem certeza que deseja INICIAR esta eleição? Uma vez iniciada, estará aberta para votação.'
+      this.acaoConfirmada = () => this.executarInicioEleicao(eleicaoId)
+      this.dialogConfirmacao = true
+    },
+    async executarInicioEleicao(eleicaoId) {
+      this.loading = true
+      try {
+        await this.eleicaoStore.ativarEleicao(eleicaoId)
+      } catch (error) {
+        console.error('Erro ao iniciar eleição:', error)
+      } finally {
+        this.loading = false
+        this.dialogConfirmacao = false
       }
+    },
+    confirmarAcao() {
+      if (this.acaoConfirmada) {
+        this.acaoConfirmada()
+      }
+    },
+    cancelarConfirmacao() {
+      this.dialogConfirmacao = false
+      this.mensagemConfirmacao = ''
+      this.acaoConfirmada = null
     },
     async handleLogout() {
       await this.authStore.logout()

@@ -67,6 +67,15 @@ export const adminService = {
     }
   },
 
+  async deletarChapa(chapaId) {
+    try {
+      const response = await api.delete(`/admin/chapas/${chapaId}`)
+      return response.data
+    } catch (error) {
+      throw error.response?.data || error
+    }
+  },
+
   // Eleitores
   async importarEleitores(eleitores) {
     try {
