@@ -65,7 +65,15 @@ backend/
 ├── src/
 │   ├── main.ts          ← Ponto de entrada
 │   ├── app.module.ts
-│   └── ...
+│   ├── prisma.service.ts  ← Serviço Prisma dentro de src/
+│   ├── auth/
+│   ├── controllers/
+│   ├── services/
+│   ├── repositories/
+│   └── models/
+├── database/
+│   └── prisma/
+│       └── schema.prisma
 ├── dist/               ← Gerado pelo build
 │   ├── main.js        ← Arquivo compilado
 │   └── ...
@@ -74,6 +82,34 @@ backend/
 ├── nest-cli.json
 └── build.sh
 ```
+
+## Erro: File is not under 'rootDir'
+
+### Causa
+Arquivos TypeScript fora do `rootDir` configurado (geralmente `src/`) não podem ser importados.
+
+### Erro Comum:
+```
+error TS6059: File '/opt/render/project/src/backend/database/src/prisma.service.ts' 
+is not under 'rootDir' '/opt/render/project/src/backend/src'
+```
+
+### Solução:
+O `prisma.service.ts` deve estar em `src/prisma.service.ts`, não em `database/src/`.
+
+**Imports corretos:**
+```typescript
+// ✅ CORRETO
+import { PrismaService } from '../prisma.service';
+import { PrismaService } from './prisma.service';
+
+// ❌ ERRADO
+import { PrismaService } from '../../database/src/prisma.service';
+```
+
+**Estrutura corrigida:**
+- `backend/src/prisma.service.ts` ← Arquivo do serviço
+- `backend/database/prisma/schema.prisma` ← Schema Prisma
 
 #### 2. Comando de Start Correto
 
