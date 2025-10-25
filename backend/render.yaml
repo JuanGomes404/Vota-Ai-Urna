@@ -10,9 +10,11 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: postgresql://vota_ai_db_user:G7fBsTCuZEKnCn2rQGQoc0Y5AbmgqnQR@dpg-d3u148ndiees73dtis30-a.oregon-postgres.render.com:5432/vota_ai_db?schema=public
+        sync: false  # Configure manualmente no dashboard do Render com suas credenciais reais
       - key: PORT
         value: 10000
       - key: SECRET
-        generateValue: true
+        generateValue: true  # Render gerará automaticamente um valor seguro
+      - key: FRONTEND_URL
+        value: https://vota-ai-frontend.onrender.com  # Atualize com a URL real do seu frontend
     healthCheckPath: /health

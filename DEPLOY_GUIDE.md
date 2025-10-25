@@ -29,10 +29,11 @@ Este guia consolida os passos para fazer o deploy completo do sistema no Render.
 ## 🚀 Ordem de Deploy
 
 ### 1️⃣ Deploy do Banco de Dados
-✅ **Já está configurado!**
-- Host: `dpg-d3u148ndiees73dtis30-a.oregon-postgres.render.com`
-- Port: `5432`
-- Database: `vota_ai_db`
+✅ **Crie um PostgreSQL Database no Render**
+- Acesse: https://dashboard.render.com
+- New + → PostgreSQL
+- Anote as credenciais (Host, Port, Database, User, Password)
+- ⚠️ **IMPORTANTE:** Nunca exponha estas credenciais publicamente!
 
 ### 2️⃣ Deploy do Backend
 
@@ -46,10 +47,12 @@ Este guia consolida os passos para fazer o deploy completo do sistema no Render.
    ```
    NODE_ENV=production
    PORT=10000
-   DATABASE_URL=postgresql://...
-   SECRET=<gerar token forte>
+   DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public
+   SECRET=<gerar token forte com: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
    FRONTEND_URL=https://vota-ai-frontend.onrender.com
    ```
+   
+   ⚠️ **NUNCA commite credenciais reais! Configure-as diretamente no Render Dashboard.**
 4. Deploy automático
 5. Executar migrações Prisma: `npx prisma migrate deploy`
 

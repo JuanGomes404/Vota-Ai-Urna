@@ -34,9 +34,12 @@
    ```
    NODE_ENV=production
    PORT=10000
-   DATABASE_URL=postgresql://vota_ai_db_user:G7fBsTCuZEKnCn2rQGQoc0Y5AbmgqnQR@dpg-d3u148ndiees73dtis30-a.oregon-postgres.render.com:5432/vota_ai_db?schema=public
+   DATABASE_URL=postgresql://SEU_USER:SUA_PASSWORD@SEU_HOST.render.com:5432/SEU_DATABASE?schema=public
    SECRET=<gerar um token secreto forte>
+   FRONTEND_URL=https://vota-ai-frontend.onrender.com
    ```
+   
+   ⚠️ **IMPORTANTE:** Substitua `DATABASE_URL` com as credenciais reais do seu banco PostgreSQL no Render!
 
    **Para gerar o SECRET:**
    Execute no terminal:

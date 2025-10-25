@@ -2,10 +2,18 @@
 
 Sistema completo de votação eletrônica desenvolvido para TCC, implementando todos os requisitos funcionais e regras de negócio necessárias para um processo eleitoral seguro e transparente.
 
-## 📋 Índice
+## � AVISO DE SEGURANÇA
+
+⚠️ **IMPORTANTE:** Este repositório contém arquivos de configuração de exemplo (`.env.example`).
+- ❌ **NUNCA** commite arquivos `.env` com credenciais reais
+- ✅ Configure variáveis sensíveis diretamente no Render Dashboard
+- 📖 Leia `backend/SECURITY.md` para orientações completas de segurança
+
+## �📋 Índice
 
 - [Visão Geral](#-visão-geral)
 - [Instalação e Execução](#-instalação-e-execução)
+- [Deploy no Render](#-deploy-no-render)
 - [API Endpoints](#-api-endpoints)
 - [Exemplos de Uso](#-exemplos-de-uso)
 - [Tecnologias](#-tecnologias)
@@ -24,6 +32,17 @@ O **Vota Ai** é um sistema de votação eletrônica completo que permite a real
 - ✅ **Credenciais de Uso Único** para máxima segurança
 - ✅ **Interface RESTful** para integração com frontend
 - ✅ **Containerização Docker** para fácil deploy
+
+---
+
+## 🚀 Deploy no Render
+
+📖 **Guia Completo:** Consulte [`DEPLOY_GUIDE.md`](./DEPLOY_GUIDE.md) para instruções detalhadas de deploy no Render.
+
+**Quick Start:**
+1. Backend: [`backend/DEPLOY_RENDER.md`](./backend/DEPLOY_RENDER.md)
+2. Frontend: [`frontend/DEPLOY_RENDER.md`](./frontend/DEPLOY_RENDER.md)
+3. Segurança: [`backend/SECURITY.md`](./backend/SECURITY.md)
 
 ---
 
