@@ -1,0 +1,150 @@
+# 🔧 Troubleshooting - Deploy no Render
+
+## Erro: Cannot find module '/opt/render/project/src/backend/dist/main.js'
+
+### Causa
+Este erro ocorre quando o Render não consegue encontrar o arquivo compilado `main.js` no caminho esperado.
+
+### Soluções Implementadas
+
+#### 1. Arquivos de Configuração Criados/Atualizados
+
+- ✅ **`nest-cli.json`** - Configuração do NestJS CLI
+- ✅ **`tsconfig.json`** - Configuração do TypeScript com `rootDir: "./src"`
+- ✅ **`tsconfig.build.json`** - Configuração específica para builds
+- ✅ **`build.sh`** - Script de build com verificações
+- ✅ **`package.json`** - Scripts atualizados
+
+#### 2. Comando de Start Correto
+
+**No render.yaml e no Dashboard do Render, use:**
+```
+startCommand: node dist/main.js
+```
+
+**NÃO use:**
+```
+startCommand: npm start
+```
+
+### Verificar no Render Dashboard
+
+#### Durante o Build:
+1. Acesse o log de build no Render Dashboard
+2. Verifique se estas mensagens aparecem:
+   ```
+   📦 Installing dependencies...
+   🔧 Generating Prisma Client...
+   🏗️ Building NestJS application...
+   ✅ Build completed successfully!
+   ```
+
+3. Verifique se o arquivo `dist/main.js` foi criado:
+   ```
+   ✅ Checking build output...
+   ✅ Build completed successfully!
+   ```
+
+#### Durante o Start:
+Se ainda houver erro, verifique:
+
+1. **Root Directory está correto?**
+   - Deve ser: `backend`
+   
+2. **Build Command está correto?**
+   - Deve ser: `chmod +x build.sh && ./build.sh`
+   
+3. **Start Command está correto?**
+   - Deve ser: `node dist/main.js`
+
+### Verificação Local
+
+Antes de fazer deploy, teste localmente:
+
+```bash
+cd backend
+
+# Instalar dependências
+npm install
+
+# Gerar Prisma Client
+cd database
+npx prisma generate
+cd ..
+
+# Build
+npm run build
+
+# Verificar se dist/main.js existe
+ls -la dist/main.js
+
+# Testar o start
+node dist/main.js
+```
+
+### Estrutura de Diretórios Esperada no Render
+
+Após o build, o Render deve ter:
+```
+/opt/render/project/src/
+  └── backend/              ← Root Directory configurado
+      ├── dist/
+      │   └── main.js       ← Arquivo principal compilado
+      ├── src/
+      ├── database/
+      ├── node_modules/
+      ├── package.json
+      ├── tsconfig.json
+      ├── nest-cli.json
+      └── build.sh
+```
+
+### Outros Erros Comuns
+
+#### "Module not found" para dependências
+```bash
+# Certifique-se que todas as dependências estão em "dependencies", não em "devDependencies"
+# Verifique package.json
+```
+
+#### "Prisma Client not generated"
+```bash
+# O build.sh já gera automaticamente
+# Mas você pode forçar com: cd database && npx prisma generate
+```
+
+#### "Cannot find module '@nestjs/...'
+```bash
+# Verifique se todas as dependências @nestjs estão instaladas
+npm install @nestjs/common @nestjs/core @nestjs/platform-express
+```
+
+### Checklist de Deploy
+
+Antes de fazer deploy, confirme:
+
+- [ ] `nest-cli.json` existe no diretório backend
+- [ ] `tsconfig.json` tem `rootDir: "./src"`
+- [ ] `package.json` tem script `build: "nest build"`
+- [ ] `build.sh` tem permissão de execução
+- [ ] Root Directory no Render está como `backend`
+- [ ] Start Command está como `node dist/main.js`
+- [ ] Todas as variáveis de ambiente estão configuradas
+
+### Logs Úteis
+
+Para debug, adicione ao início do `main.ts`:
+
+```typescript
+console.log('🚀 Starting application...');
+console.log('📁 Current directory:', __dirname);
+console.log('🌍 Environment:', process.env.NODE_ENV);
+console.log('🔌 Port:', process.env.PORT || 3000);
+```
+
+### Contato
+
+Se o problema persistir:
+1. Verifique os logs completos no Render Dashboard
+2. Copie a mensagem de erro completa
+3. Verifique a seção de Environment Variables
