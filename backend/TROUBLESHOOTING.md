@@ -13,7 +13,67 @@ Este erro ocorre quando o Render não consegue encontrar o arquivo compilado `ma
 - ✅ **`tsconfig.json`** - Configuração do TypeScript com `rootDir: "./src"`
 - ✅ **`tsconfig.build.json`** - Configuração específica para builds
 - ✅ **`build.sh`** - Script de build com verificações
-- ✅ **`package.json`** - Scripts atualizados
+- ✅ **`build-tsc.sh`** - Script alternativo usando TypeScript diretamente
+- ✅ **`package.json`** - Scripts atualizados e dependências corretas
+
+#### 2. Dependências Corretas
+
+**IMPORTANTE:** `@nestjs/cli` e `typescript` devem estar em `dependencies`, NÃO em `devDependencies`!
+
+```json
+"dependencies": {
+  "@nestjs/cli": "^10.0.0",
+  "typescript": "^5.0.0",
+  ...
+}
+```
+
+Isso garante que o Render possa compilar o código durante o deploy.
+
+## Erro: ❌ Error: dist/main.js not found!
+
+### Causa
+O build do NestJS não está gerando o arquivo compilado corretamente.
+
+### Solução 1: Verificar Dependências
+
+Certifique-se que estas dependências estão em `dependencies`:
+```json
+{
+  "dependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "typescript": "^5.0.0",
+    "@nestjs/common": "^10.4.20",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0"
+  }
+}
+```
+
+### Solução 2: Usar Build Alternativo
+
+Se o `build.sh` falhar, use o `build-tsc.sh`:
+
+**No Render Dashboard:**
+- Build Command: `chmod +x build-tsc.sh && ./build-tsc.sh`
+
+### Solução 3: Verificar Estrutura de Arquivos
+
+A estrutura deve ser:
+```
+backend/
+├── src/
+│   ├── main.ts          ← Ponto de entrada
+│   ├── app.module.ts
+│   └── ...
+├── dist/               ← Gerado pelo build
+│   ├── main.js        ← Arquivo compilado
+│   └── ...
+├── package.json
+├── tsconfig.json
+├── nest-cli.json
+└── build.sh
+```
 
 #### 2. Comando de Start Correto
 
