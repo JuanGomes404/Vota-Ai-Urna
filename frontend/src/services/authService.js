@@ -12,7 +12,11 @@ export const authService = {
       }
       return response.data
     } catch (error) {
-      throw error.response?.data || error
+      // Extrair mensagem de erro específica
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          'Erro ao realizar login. Tente novamente.'
+      throw { error: errorMessage, status: error.response?.status }
     }
   },
 

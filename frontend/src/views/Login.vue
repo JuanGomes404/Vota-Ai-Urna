@@ -36,10 +36,17 @@
             <v-alert
               v-if="error"
               type="error"
+              variant="tonal"
               class="mb-4"
               closable
+              prominent
+              border="start"
               @click:close="error = null"
             >
+              <v-alert-title class="text-h6 mb-2">
+                <v-icon class="mr-2">mdi-alert-circle</v-icon>
+                Falha na Autenticação
+              </v-alert-title>
               {{ error }}
             </v-alert>
 
@@ -122,7 +129,17 @@ export default {
           this.$router.push('/mesario')
         }
       } catch (error) {
+        // Exibir mensagem de erro específica
         this.error = error.error || 'Erro ao fazer login. Verifique suas credenciais.'
+        
+        // Limpar apenas o campo de senha após erro
+        this.credentials.senha = ''
+        
+        // Focar no campo de senha para nova tentativa
+        setTimeout(() => {
+          const senhaField = this.$el.querySelector('input[type="password"]')
+          if (senhaField) senhaField.focus()
+        }, 100)
       } finally {
         this.loading = false
       }

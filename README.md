@@ -75,7 +75,42 @@ docker-compose down
 docker-compose down -v
 ```
 
-### 📋 Containers do Sistema
+### � Alternar entre banco local e Render (produção)
+
+O backend agora seleciona automaticamente a URL do banco com base nas variáveis de ambiente:
+
+- Em desenvolvimento (DB_ENV=local ou NODE_ENV=development), usa `DATABASE_URL`.
+- Em produção (DB_ENV=prod ou NODE_ENV=production), usa `DATABASE_URL_PROD` quando definido; caso contrário, usa `DATABASE_URL`.
+
+Arquivos de exemplo:
+
+- `backend/.env.example` (desenvolvimento)
+- `backend/.env.production.example` (produção/Render)
+
+Uso sugerido:
+
+```powershell
+# Local (usando Postgres do compose)
+cp backend/.env.example backend/.env
+# Edite backend/.env se necessário. Depois:
+docker build -f Dockerfile.backend -t vota-ai-backend .
+docker run --rm -p 3000:3000 --env-file backend/.env vota-ai-backend
+
+# Produção (Render)
+# Configure as variáveis na plataforma Render (Dashboard → Environment):
+# - NODE_ENV=production
+# - DB_ENV=prod (opcional)
+# - DATABASE_URL=postgresql://<render-connection-string>
+# - JWT_SECRET=<sua-chave-secreta>
+# Opcional: DATABASE_URL_PROD para separar da local.
+```
+
+Segurança de migrações:
+
+- Em produção, o container executa somente `prisma migrate deploy` (sem `migrate dev`).
+- O seed SQL (`database/init-data.sql`) só roda em desenvolvimento.
+
+### �📋 Containers do Sistema
 
 | Container | Nome | Porta | Descrição |
 |-----------|------|-------|-----------|

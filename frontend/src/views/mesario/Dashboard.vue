@@ -77,7 +77,16 @@
                   <v-list-item-title class="text-h6">{{ eleicao.nome }}</v-list-item-title>
                   <v-list-item-subtitle v-if="eleicao.descricao">{{ eleicao.descricao }}</v-list-item-subtitle>
                   <template v-slot:append>
-                    <v-chip color="success" size="small">{{ eleicao.status }}</v-chip>
+                    <div class="d-flex align-center gap-2">
+                      <v-chip color="success" size="small">{{ eleicao.status }}</v-chip>
+                      <v-btn
+                        icon="mdi-information-outline"
+                        size="small"
+                        variant="text"
+                        @click.stop="abrirAuditoriaEleicao(eleicao)"
+                        title="Informações de Auditoria"
+                      />
+                    </div>
                   </template>
                 </v-list-item>
               </v-list>
@@ -371,6 +380,117 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <!-- Dialog de Auditoria da Eleição (RNF05) -->
+        <v-dialog v-model="dialogAuditoria" max-width="600" scrollable>
+          <v-card rounded="lg">
+            <v-card-title class="text-h5 font-weight-bold pa-6 bg-primary">
+              <div class="d-flex align-center justify-center w-100">
+                <v-icon color="white" class="mr-2">mdi-file-document-outline</v-icon>
+                <span class="text-white">Informações de Auditoria</span>
+              </div>
+            </v-card-title>
+            
+            <v-card-text class="pa-6" v-if="eleicaoAuditoria">
+              <v-alert type="info" variant="tonal" class="mb-4">
+                <v-icon left>mdi-shield-check</v-icon>
+                Dados para verificação e auditoria do processo eleitoral
+              </v-alert>
+
+              <v-list>
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="primary">mdi-vote</v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Nome da Eleição</v-list-item-title>
+                  <v-list-item-subtitle class="text-h6 mt-1">
+                    {{ eleicaoAuditoria.nome }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+
+                <v-divider class="my-3"></v-divider>
+
+                <v-list-item v-if="eleicaoAuditoria.descricao">
+                  <template v-slot:prepend>
+                    <v-icon color="grey-darken-1">mdi-text</v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Descrição</v-list-item-title>
+                  <v-list-item-subtitle class="mt-1">
+                    {{ eleicaoAuditoria.descricao }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+
+                <v-divider class="my-3"></v-divider>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="success">mdi-check-circle</v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Status Atual</v-list-item-title>
+                  <v-list-item-subtitle class="mt-1">
+                    <v-chip color="success" size="small">{{ eleicaoAuditoria.status }}</v-chip>
+                  </v-list-item-subtitle>
+                </v-list-item>
+
+                <v-divider class="my-3"></v-divider>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="blue">mdi-calendar-plus</v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Data de Criação</v-list-item-title>
+                  <v-list-item-subtitle class="mt-1">
+                    {{ formatarDataHora(eleicaoAuditoria.createdAt) }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+
+                <v-divider class="my-3"></v-divider>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="orange">mdi-calendar-edit</v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Última Atualização</v-list-item-title>
+                  <v-list-item-subtitle class="mt-1">
+                    {{ formatarDataHora(eleicaoAuditoria.updatedAt) }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+
+                <v-divider class="my-3"></v-divider>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="grey-darken-1">mdi-identifier</v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">ID da Eleição</v-list-item-title>
+                  <v-list-item-subtitle class="mt-1 text-caption font-monospace">
+                    {{ eleicaoAuditoria.id }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+              </v-list>
+
+              <v-alert type="warning" variant="tonal" class="mt-4">
+                <div class="text-caption">
+                  <v-icon size="small" left>mdi-information</v-icon>
+                  Estas informações são registradas automaticamente pelo sistema para fins de auditoria e rastreabilidade do processo eleitoral.
+                </div>
+              </v-alert>
+            </v-card-text>
+            
+            <v-card-actions class="pa-4">
+              <v-spacer />
+              <v-btn
+                color="primary"
+                size="large"
+                variant="elevated"
+                @click="dialogAuditoria = false"
+              >
+                <v-icon left>mdi-close</v-icon>
+                Fechar
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </v-main>
   </v-app>
@@ -401,6 +521,9 @@ export default {
       dialogCredencial: false,
       credencialGerada: '',
       expiracaoCredencial: '',
+      // Variáveis para auditoria (RNF05)
+      dialogAuditoria: false,
+      eleicaoAuditoria: null,
       // Variáveis para confirmação
       dialogConfirmacao: false,
       mensagemConfirmacao: '',
@@ -553,6 +676,42 @@ export default {
       this.dialogConfirmacao = false
       this.mensagemConfirmacao = ''
       this.acaoConfirmada = null
+    },
+    /**
+     * RNF05: Exibir informações de auditoria da eleição
+     * Mostra dados de criação e atualização para rastreabilidade
+     */
+    abrirAuditoriaEleicao(eleicao) {
+      this.eleicaoAuditoria = eleicao
+      this.dialogAuditoria = true
+    },
+    /**
+     * Formata data e hora para exibição no formato brasileiro
+     * @param {string} dataISO - Data em formato ISO string
+     * @returns {string} Data formatada em pt-BR
+     */
+    formatarDataHora(dataISO) {
+      if (!dataISO) return 'N/A'
+      
+      const data = new Date(dataISO)
+      
+      // Verificar se a data é válida
+      if (isNaN(data.getTime())) return 'Data inválida'
+      
+      // Formatar data e hora
+      const dataFormatada = data.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+      
+      const horaFormatada = data.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+      
+      return `${dataFormatada} às ${horaFormatada}`
     },
     async handleLogout() {
       await this.authStore.logout()

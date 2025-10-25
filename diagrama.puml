@@ -1,0 +1,111 @@
+@startuml Vota-AI-Component-Diagram
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+
+package "FRONTEND (Vue.js Application)" #AliceBlue {
+    package "Camada de Apresentação" #LightBlue {
+        component [Admin Web\n(Vue + Vuetify + TypeScript)] as AdminWeb
+        component [Mesário Web\n(Vue + Vuetify + TypeScript)] as PollWorkerWeb
+        component [Urna Eletrônica\n(Vue + Vuetify + TypeScript)] as VotingBoothWeb
+    }
+    
+    package "Frontend Services" #LightSteelBlue {
+        component [HTTP Client\n(Axios)] as HttpClient
+        component [Auth Guard] as FrontendAuthGuard
+        component [Vue Router] as VueRouter
+    }
+    
+    AdminWeb --> HttpClient
+    PollWorkerWeb --> HttpClient
+    VotingBoothWeb --> HttpClient
+    
+    AdminWeb --> FrontendAuthGuard
+    PollWorkerWeb --> FrontendAuthGuard
+    
+    AdminWeb --> VueRouter
+    PollWorkerWeb --> VueRouter
+    VotingBoothWeb --> VueRouter
+}
+
+package "BACKEND (Node.js + Express + TypeScript)" #Honeydew {
+    package "Camada de API REST" #LightGreen {
+        component [Express API Server] as API
+        
+        package "Controllers (MVC)" {
+            [Auth Controller] as AuthCtrl
+            [Election Controller] as ElectionCtrl
+            [Voter Controller] as VoterCtrl
+            [Vote Controller] as VoteCtrl
+        }
+        
+        package "Middleware" {
+            [JWT Authentication] as JWT
+            [Role Authorization] as RoleGuard
+            [Error Handler] as ErrorHandler
+        }
+    }
+    
+    package "Camada de Negócio (Services)" #LightYellow {
+        component [Auth Service] as AuthSvc
+        component [Election Service] as ElectionSvc
+        component [Voter Service] as VoterSvc
+        component [Vote Service] as VoteSvc
+        component [Credential Service] as CredentialSvc
+        component [Audit Log Service] as AuditSvc
+    }
+    
+    package "Camada de Dados (Prisma ORM)" #LightCoral {
+        component [Prisma Client] as Prisma
+        database "PostgreSQL Database" as DB {
+            [users]
+            [elections]
+            [candidates]
+            [voters]
+            [credentials]
+            [votes]
+            [audit_logs]
+        }
+    }
+    
+    package "Serviços Auxiliares" #LightGray {
+        component [Crypto Service] as Crypto
+        component [Token Generator] as TokenGen
+    }
+}
+
+HttpClient --> API : HTTPS/REST API
+
+API --> JWT
+API --> ErrorHandler
+JWT --> RoleGuard
+RoleGuard --> AuthCtrl
+RoleGuard --> ElectionCtrl
+RoleGuard --> VoterCtrl
+RoleGuard --> VoteCtrl
+
+AuthCtrl --> AuthSvc
+ElectionCtrl --> ElectionSvc
+VoterCtrl --> VoterSvc
+VoteCtrl --> VoteSvc
+VoterCtrl --> CredentialSvc
+
+AuthSvc --> Prisma
+ElectionSvc --> Prisma
+VoterSvc --> Prisma
+VoteSvc --> Prisma
+CredentialSvc --> Prisma
+AuditSvc --> Prisma
+
+AuthSvc --> Crypto
+AuthSvc --> TokenGen
+CredentialSvc --> TokenGen
+VoteSvc --> Crypto
+
+VoterSvc --> AuditSvc
+VoteSvc --> AuditSvc
+
+Prisma --> DB
+
+@enduml

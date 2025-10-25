@@ -11,7 +11,7 @@ export class MesarioRepository {
     });
   }
 
-  // Listar eleições ativas
+  // Listar eleições ativas (com dados de auditoria - RNF05)
   async listarEleicoesAtivas() {
     return await this.prisma.eleicao.findMany({
       where: { 
@@ -23,7 +23,9 @@ export class MesarioRepository {
         nome: true,
         descricao: true,
         status: true,
-        ativa: true
+        ativa: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
   }
