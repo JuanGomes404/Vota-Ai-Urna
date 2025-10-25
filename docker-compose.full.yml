@@ -1,0 +1,57 @@
+services:
+  # Frontend Vue.js
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    networks:
+      - vota-ai-network
+    environment:
+      - NODE_ENV=production
+
+  # Backend NestJS
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - vota-ai-network
+    environment:
+      - DATABASE_URL=postgresql://vota_ai_user:vota_ai_password@postgres:5432/vota_ai_db
+      - JWT_SECRET=sua_chave_secreta_jwt_aqui
+      - NODE_ENV=production
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=vota_ai_user
+      - POSTGRES_PASSWORD=vota_ai_password
+      - POSTGRES_DB=vota_ai_db
+
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    networks:
+      - vota-ai-network
+    environment:
+      - POSTGRES_DB=vota_ai_db
+      - POSTGRES_USER=vota_ai_user
+      - POSTGRES_PASSWORD=vota_ai_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+networks:
+  vota-ai-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

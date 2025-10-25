@@ -2,10 +2,18 @@
 
 Sistema completo de votação eletrônica desenvolvido para TCC, implementando todos os requisitos funcionais e regras de negócio necessárias para um processo eleitoral seguro e transparente.
 
-## 📋 Índice
+## � AVISO DE SEGURANÇA
+
+⚠️ **IMPORTANTE:** Este repositório contém arquivos de configuração de exemplo (`.env.example`).
+- ❌ **NUNCA** commite arquivos `.env` com credenciais reais
+- ✅ Configure variáveis sensíveis diretamente no Render Dashboard
+- 📖 Leia `backend/SECURITY.md` para orientações completas de segurança
+
+## �📋 Índice
 
 - [Visão Geral](#-visão-geral)
 - [Instalação e Execução](#-instalação-e-execução)
+- [Deploy no Render](#-deploy-no-render)
 - [API Endpoints](#-api-endpoints)
 - [Exemplos de Uso](#-exemplos-de-uso)
 - [Tecnologias](#-tecnologias)
@@ -24,6 +32,17 @@ O **Vota Ai** é um sistema de votação eletrônica completo que permite a real
 - ✅ **Credenciais de Uso Único** para máxima segurança
 - ✅ **Interface RESTful** para integração com frontend
 - ✅ **Containerização Docker** para fácil deploy
+
+---
+
+## 🚀 Deploy no Render
+
+📖 **Guia Completo:** Consulte [`DEPLOY_GUIDE.md`](./DEPLOY_GUIDE.md) para instruções detalhadas de deploy no Render.
+
+**Quick Start:**
+1. Backend: [`backend/DEPLOY_RENDER.md`](./backend/DEPLOY_RENDER.md)
+2. Frontend: [`frontend/DEPLOY_RENDER.md`](./frontend/DEPLOY_RENDER.md)
+3. Segurança: [`backend/SECURITY.md`](./backend/SECURITY.md)
 
 ---
 
@@ -75,7 +94,42 @@ docker-compose down
 docker-compose down -v
 ```
 
-### 📋 Containers do Sistema
+### � Alternar entre banco local e Render (produção)
+
+O backend agora seleciona automaticamente a URL do banco com base nas variáveis de ambiente:
+
+- Em desenvolvimento (DB_ENV=local ou NODE_ENV=development), usa `DATABASE_URL`.
+- Em produção (DB_ENV=prod ou NODE_ENV=production), usa `DATABASE_URL_PROD` quando definido; caso contrário, usa `DATABASE_URL`.
+
+Arquivos de exemplo:
+
+- `backend/.env.example` (desenvolvimento)
+- `backend/.env.production.example` (produção/Render)
+
+Uso sugerido:
+
+```powershell
+# Local (usando Postgres do compose)
+cp backend/.env.example backend/.env
+# Edite backend/.env se necessário. Depois:
+docker build -f Dockerfile.backend -t vota-ai-backend .
+docker run --rm -p 3000:3000 --env-file backend/.env vota-ai-backend
+
+# Produção (Render)
+# Configure as variáveis na plataforma Render (Dashboard → Environment):
+# - NODE_ENV=production
+# - DB_ENV=prod (opcional)
+# - DATABASE_URL=postgresql://<render-connection-string>
+# - JWT_SECRET=<sua-chave-secreta>
+# Opcional: DATABASE_URL_PROD para separar da local.
+```
+
+Segurança de migrações:
+
+- Em produção, o container executa somente `prisma migrate deploy` (sem `migrate dev`).
+- O seed SQL (`database/init-data.sql`) só roda em desenvolvimento.
+
+### �📋 Containers do Sistema
 
 | Container | Nome | Porta | Descrição |
 |-----------|------|-------|-----------|

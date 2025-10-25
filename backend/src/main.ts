@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
+<<<<<<< HEAD
   // Configuração CORS para permitir requisições do frontend
   app.enableCors({
     origin: [
@@ -24,5 +25,22 @@ async function bootstrap() {
   
   console.log(`🚀 Backend iniciado na porta ${port}`);
   console.log(`🌐 CORS habilitado para frontend em produção`);
+=======
+  // Enable CORS for frontend communication
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || [
+      'http://localhost:5173', 
+      'http://localhost:3001',
+      'https://vota-ai-frontend.onrender.com'  // Adicione sua URL do frontend aqui
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+  
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`🚀 Backend running on port ${port}`);
+>>>>>>> 928ad6a52605a694d1a4dc5a65eddd4a7b0dfaa6
 }
 bootstrap();

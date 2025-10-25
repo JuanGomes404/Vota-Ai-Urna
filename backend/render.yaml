@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: vota-ai-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: node dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # Configure manualmente no dashboard do Render com suas credenciais reais
+      - key: PORT
+        value: 10000
+      - key: SECRET
+        generateValue: true  # Render gerará automaticamente um valor seguro
+      - key: FRONTEND_URL
+        value: https://vota-ai-frontend.onrender.com  # Atualize com a URL real do seu frontend
+    healthCheckPath: /health
