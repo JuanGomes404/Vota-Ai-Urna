@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^6.17.1"
   },
   "devDependencies": {
-    "prisma": "^5.0.0",
+    "prisma": "^6.17.1",
     "typescript": "^5.0.0"
   }
 }

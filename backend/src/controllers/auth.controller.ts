@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { UnifiedLoginDto } from '../models/auth.dto';
 import { RolesGuard, Roles } from '../auth/roles.guard';
@@ -11,7 +11,14 @@ export class AuthController {
   async login(@Body() loginDto: UnifiedLoginDto) {
     const user = await this.authService.validateUser(loginDto.usuario, loginDto.senha);
     if (!user) {
-      return { error: 'Credenciais inválidas' };
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Usuário ou senha incorretos',
+          error: 'Credenciais inválidas'
+        },
+        HttpStatus.UNAUTHORIZED
+      );
     }
     
     const token = await this.authService.generateToken(user);

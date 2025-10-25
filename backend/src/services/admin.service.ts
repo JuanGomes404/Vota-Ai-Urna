@@ -14,12 +14,24 @@ export class AdminService {
     return { error: 'Credenciais inválidas' };
   }
 
+  async listarEleicoes() {
+    return await this.adminRepository.listarEleicoes();
+  }
+
+  async buscarEleicao(eleicaoId: string) {
+    return await this.adminRepository.buscarEleicao(eleicaoId);
+  }
+
   async criarEleicao(eleicaoDto: EleicaoDto) {
     return await this.adminRepository.criarEleicao(eleicaoDto);
   }
 
   async criarChapa(chapaDto: ChapaDto) {
     return await this.adminRepository.criarChapa(chapaDto);
+  }
+
+  async deletarChapa(chapaId: string) {
+    return await this.adminRepository.deletarChapa(chapaId);
   }
 
   async importarEleitores(eleitores: any[]) {
