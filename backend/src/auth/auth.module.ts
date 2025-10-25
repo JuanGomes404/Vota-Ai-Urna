@@ -6,7 +6,7 @@ import { AuthController } from '../controllers/auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { AdminRepository } from '../repositories/admin.repository';
 import { MesarioRepository } from '../repositories/mesario.repository';
-import { PrismaService } from '../../database/src/prisma.service';
+import { PrismaService } from '../prisma.service';
 
 @Module({
   imports: [

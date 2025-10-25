@@ -12,7 +12,7 @@ import { DatabaseInitService } from './services/database-init.service';
 import { AdminRepository } from './repositories/admin.repository';
 import { MesarioRepository } from './repositories/mesario.repository';
 import { UrnaRepository } from './repositories/urna.repository';
-import { PrismaService } from '../database/src/prisma.service';
+import { PrismaService } from './prisma.service';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
