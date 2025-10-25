@@ -27,7 +27,7 @@
    - **Root Directory:** `backend`
    - **Runtime:** `Node`
    - **Build Command:** `chmod +x build.sh && ./build.sh`
-   - **Start Command:** `npm start`
+   - **Start Command:** `node dist/main.js`
 
    **Advanced Settings - Environment Variables:**
    Adicione as seguintes variáveis:
