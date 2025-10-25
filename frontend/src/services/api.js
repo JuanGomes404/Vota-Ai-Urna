@@ -1,8 +1,10 @@
 import axios from 'axios'
 
 // Configuração base do axios
+// Em produção, usa a variável de ambiente VITE_API_URL
+// Em desenvolvimento, usa o proxy configurado no vite.config.js
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
