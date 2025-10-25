@@ -24,14 +24,3 @@ VALUES (
     NOW()
 ) ON CONFLICT (usuario) DO NOTHING;
 
--- Criar eleição de exemplo
-INSERT INTO "Eleicao" (id, nome, descricao, ativa, status, "createdAt", "updatedAt")
-VALUES (
-    gen_random_uuid(),
-    'Eleição de Exemplo - Vota Ai',
-    'Eleição de demonstração do sistema Vota Ai',
-    false,
-    'Criada',
-    NOW(),
-    NOW()
-) ON CONFLICT DO NOTHING;

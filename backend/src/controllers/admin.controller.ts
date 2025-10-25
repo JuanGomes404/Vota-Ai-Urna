@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { AdminService } from '../services/admin.service';
 import { EleicaoDto, ChapaDto } from '../models/admin.dto';
 import { RolesGuard, Roles } from '../auth/roles.guard';
@@ -8,6 +8,13 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
   ) {}
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get('eleicoes')
+  async listarEleicoes() {
+    return await this.adminService.listarEleicoes();
+  }
 
   @UseGuards(RolesGuard)
   @Roles('admin')
@@ -25,9 +32,23 @@ export class AdminController {
 
   @UseGuards(RolesGuard)
   @Roles('admin')
+  @Delete('chapas/:id')
+  async deletarChapa(@Param('id') chapaId: string) {
+    return await this.adminService.deletarChapa(chapaId);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Post('eleitores/importar')
   async importarEleitores(@Body() eleitores: any[]) {
     return await this.adminService.importarEleitores(eleitores);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @Get('eleicoes/:id')
+  async buscarEleicao(@Param('id') eleicaoId: string) {
+    return await this.adminService.buscarEleicao(eleicaoId);
   }
 
   @UseGuards(RolesGuard)

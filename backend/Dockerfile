@@ -8,7 +8,7 @@ COPY package*.json ./
 COPY database/package*.json ./database/
 
 # Instalar todas as dependências (incluindo devDependencies para build)
-RUN npm ci && npm cache clean --force
+RUN rm -f package-lock.json && npm install --no-audit --no-fund && npm cache clean --force
 
 # Copiar código fonte
 COPY . .
@@ -21,10 +21,13 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
+# Instalar cliente PostgreSQL e curl (usado no healthcheck)
+RUN apk add --no-cache postgresql-client curl
+
 # Instalar apenas dependências de produção
 COPY package*.json ./
 COPY database/package*.json ./database/
-RUN npm ci --omit=dev && npm cache clean --force
+RUN rm -f package-lock.json && npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 
 # Copiar build da aplicação
 COPY --from=builder /app/dist ./dist

@@ -13,11 +13,17 @@ export class MesarioService {
     return { error: 'Credenciais inválidas' };
   }
 
+  // Listar eleições ativas
+  async listarEleicoesAtivas() {
+    const eleicoes = await this.mesarioRepository.listarEleicoesAtivas();
+    return { eleicoes };
+  }
+
   // RN05: Buscar apenas eleitores da lista oficial
-  async buscarEleitor(matricula: string) {
-    const eleitor = await this.mesarioRepository.findEleitorByMatricula(matricula);
+  async buscarEleitor(matricula: string, eleicaoId: string) {
+    const eleitor = await this.mesarioRepository.findEleitorByMatricula(matricula, eleicaoId);
     if (!eleitor) {
-      return { error: 'Eleitor não encontrado na lista oficial' };
+      return { error: 'Eleitor não encontrado na lista oficial desta eleição' };
     }
     
     const status = eleitor.jaVotou ? 'Já Votou' : 'Apto a Votar';
@@ -25,10 +31,10 @@ export class MesarioService {
   }
 
   // RN06, RN07, RN08, RN09: Habilitação com todas as validações
-  async habilitarEleitor(matricula: string) {
-    const eleitor = await this.mesarioRepository.findEleitorByMatricula(matricula);
+  async habilitarEleitor(matricula: string, eleicaoId: string) {
+    const eleitor = await this.mesarioRepository.findEleitorByMatricula(matricula, eleicaoId);
     if (!eleitor) {
-      return { error: 'Eleitor não encontrado na lista oficial' };
+      return { error: 'Eleitor não encontrado na lista oficial desta eleição' };
     }
     
     // RN06: Verificar se já votou
@@ -36,21 +42,27 @@ export class MesarioService {
       return { error: 'Eleitor já votou - RN07: Status irreversível' };
     }
 
-    // RN08: Verificar se já foi habilitado
+    // RN08: Verificar se já foi habilitado (com credencial válida e não expirada)
     const jaHabilitado = await this.mesarioRepository.verificarHabilitacao(eleitor.id, eleitor.eleicaoId);
     if (jaHabilitado) {
-      return { error: 'Eleitor já foi habilitado para esta eleição' };
+      return { error: 'Eleitor já possui uma credencial válida para esta eleição' };
     }
 
-    // RN09: Gerar credencial de uso único
+    // RN09: Gerar credencial de uso único com validade de 5 minutos
     const credencial = await this.mesarioRepository.gerarCredencial(eleitor.id, eleitor.eleicaoId);
     
-    // RN07: Marcar como votou (irreversível)
-    await this.mesarioRepository.marcarEleitorComoVotou(eleitor.id);
+    // Nota: O status "já votou" só será marcado após a confirmação do voto na urna
     
     return { 
       message: 'Eleitor habilitado com sucesso', 
-      credencial: credencial.token 
+      credencial: credencial.token,
+      expiresAt: credencial.expiresAt
     };
+  }
+
+  // Listar todos os eleitores aptos a votar (ordenados alfabeticamente)
+  async listarEleitoresAptos(eleicaoId: string) {
+    const eleitores = await this.mesarioRepository.listarEleitoresAptos(eleicaoId);
+    return { eleitores };
   }
 }
