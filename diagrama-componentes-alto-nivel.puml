@@ -1,0 +1,148 @@
+@startuml Diagrama_Componentes_VotaAi_AltoNivel
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<database>> LightYellow
+    BackgroundColor<<security>> Orange
+    BorderColor Black
+    ArrowColor Black
+    FontSize 13
+}
+
+skinparam package {
+    BackgroundColor White
+    BorderColor Black
+    FontStyle bold
+    FontSize 13
+}
+
+title Diagrama de Componentes - Sistema Vota Aí
+
+actor "Administrador" as admin
+actor "Mesário" as mesario
+actor "Eleitor" as eleitor
+
+package "Frontend Web\n(Vue.js 3 + Vuetify + Pinia)" as frontend <<frontend>> {
+    
+    package "Gerenciamento de Estado" {
+        component "Auth Store" as auth_store <<frontend>>
+        component "Eleicao Store" as eleicao_store <<frontend>>
+    }
+    
+    component "Módulo\nAdministrador\n(Views + Services)" as mod_admin <<frontend>>
+    component "Módulo\nMesário\n(Views + Services)" as mod_mesario <<frontend>>
+    component "Módulo\nUrna Eletrônica\n(Views + Services)" as mod_urna <<frontend>>
+    
+    component "Vue Router" as router <<frontend>>
+    component "Axios Client" as axios <<frontend>>
+}
+
+package "Camada de Comunicação" {
+    component "HTTPS/TLS\nEncryption" as https <<security>>
+    component "API REST\nEndpoints" as api_rest <<backend>>
+}
+
+package "Backend\n(NestJS + Express + TypeScript)" as backend <<backend>> {
+    
+    package "Segurança" {
+        component "JWT Auth Guard" as jwt_guard <<security>>
+        component "Roles Guard\n(RBAC)" as roles_guard <<security>>
+    }
+    
+    package "Controllers (API)" {
+        component "Auth Controller\n/api/auth/*" as ctrl_auth <<backend>>
+        component "Admin Controller\n/api/admin/*" as ctrl_admin <<backend>>
+        component "Mesario Controller\n/api/mesario/*" as ctrl_mesario <<backend>>
+        component "Urna Controller\n/api/urna/*" as ctrl_urna <<backend>>
+    }
+    
+    package "Services (Lógica)" {
+        component "Auth Service" as svc_auth <<backend>>
+        component "Admin Service" as svc_admin <<backend>>
+        component "Mesario Service" as svc_mesario <<backend>>
+        component "Urna Service" as svc_urna <<backend>>
+    }
+    
+    package "Repositories (Dados)" {
+        component "Admin Repository" as repo_admin <<backend>>
+        component "Mesario Repository" as repo_mesario <<backend>>
+        component "Urna Repository" as repo_urna <<backend>>
+    }
+}
+
+package "Camada de Dados" as data_layer <<database>> {
+    component "Prisma ORM\n(Type-Safe)" as prisma <<backend>>
+    database "PostgreSQL" as db <<database>> {
+        frame "Tabelas" {
+            component "Administrador" as tb_admin <<database>>
+            component "Mesario" as tb_mesario <<database>>
+            component "Eleicao" as tb_eleicao <<database>>
+            component "Chapa" as tb_chapa <<database>>
+            component "Eleitor" as tb_eleitor <<database>>
+            component "Credencial" as tb_credencial <<database>>
+            component "Voto" as tb_voto <<database>>
+        }
+    }
+}
+
+admin --> mod_admin : "acessa"
+mesario --> mod_mesario : "acessa"
+eleitor --> mod_urna : "acessa"
+
+router --> mod_admin
+router --> mod_mesario
+router --> mod_urna
+
+mod_admin --> auth_store : "autenticação"
+mod_admin --> eleicao_store : "gerencia dados"
+mod_mesario --> auth_store : "autenticação"
+mod_mesario --> eleicao_store : "consulta dados"
+mod_urna --> eleicao_store : "consulta dados"
+
+auth_store --> axios
+eleicao_store --> axios
+mod_admin --> axios : "chamadas HTTP"
+mod_mesario --> axios : "chamadas HTTP"
+mod_urna --> axios : "chamadas HTTP"
+
+axios --> https : "requisições seguras"
+https --> api_rest : "encriptação TLS"
+
+api_rest --> ctrl_auth : "roteia"
+api_rest --> ctrl_admin : "roteia"
+api_rest --> ctrl_mesario : "roteia"
+api_rest --> ctrl_urna : "roteia"
+
+ctrl_auth --> jwt_guard : "valida token"
+ctrl_admin --> jwt_guard : "valida token"
+ctrl_admin --> roles_guard : "verifica ADMIN"
+ctrl_mesario --> jwt_guard : "valida token"
+ctrl_mesario --> roles_guard : "verifica POLL_WORKER"
+
+ctrl_auth --> svc_auth : "lógica"
+ctrl_admin --> svc_admin : "lógica"
+ctrl_mesario --> svc_mesario : "lógica"
+ctrl_urna --> svc_urna : "lógica"
+
+svc_auth --> prisma : "acesso direto"
+svc_admin --> repo_admin : "persistência"
+svc_mesario --> repo_mesario : "persistência"
+svc_urna --> repo_urna : "persistência"
+
+repo_admin --> prisma
+repo_mesario --> prisma
+repo_urna --> prisma
+
+prisma --> db : "SQL queries"
+
+
+legend right
+  |<#LightBlue> Camada de Apresentação |
+  |<#LightGreen> Camada de Aplicação |
+  |<#LightYellow> Camada de Persistência |
+  |<#Orange> Segurança |
+  
+endlegend
+
+@enduml

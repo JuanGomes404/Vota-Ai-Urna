@@ -1,0 +1,287 @@
+@startuml Diagrama_Arquitetura_VotaAi_Completo
+
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<database>> LightYellow
+    BackgroundColor<<security>> Orange
+    BorderColor Black
+    ArrowColor Black
+}
+
+skinparam package {
+    BackgroundColor White
+    BorderColor Black
+    FontStyle bold
+}
+
+skinparam interface {
+    BackgroundColor LightGray
+    BorderColor Black
+}
+
+title Diagrama de Arquitetura de Componentes - Sistema Vota Aí\nSistema de Urna Eletrônica - Arquitetura Completa
+
+actor "Administrador" as admin
+actor "Mesário" as mesario
+actor "Eleitor" as eleitor
+
+package "Camada de Apresentação\n(Frontend - Vue.js 3 + Vuetify)" {
+    
+    package "Rotas e Navegação" {
+        component "Vue Router" as router <<frontend>>
+    }
+    
+    package "Gerenciamento de Estado" {
+        component "Auth Store\n(Pinia)" as auth_store <<frontend>>
+        component "Eleicao Store\n(Pinia)" as eleicao_store <<frontend>>
+    }
+    
+    package "Views - Módulo Admin" {
+        component "Login View" as login_view <<frontend>>
+        component "Dashboard Admin" as admin_dashboard <<frontend>>
+        component "Gestão de Eleições" as admin_eleicoes <<frontend>>
+        component "Visualização de Resultados" as admin_resultados <<frontend>>
+    }
+    
+    package "Views - Módulo Mesário" {
+        component "Dashboard Mesário" as mesario_dashboard <<frontend>>
+        component "Busca de Eleitor" as mesario_busca <<frontend>>
+        component "Autorização" as mesario_auth <<frontend>>
+    }
+    
+    package "Views - Módulo Urna" {
+        component "Urna Eletrônica" as urna_view <<frontend>>
+        component "Seleção de Voto" as urna_selecao <<frontend>>
+        component "Confirmação" as urna_confirmacao <<frontend>>
+        component "Voto Sucesso" as urna_sucesso <<frontend>>
+    }
+    
+    package "Serviços de API - Frontend" {
+        component "authService.js" as auth_service_front <<frontend>>
+        component "adminService.js" as admin_service_front <<frontend>>
+        component "mesarioService.js" as mesario_service_front <<frontend>>
+        component "urnaService.js" as urna_service_front <<frontend>>
+        component "identidadeService.js" as identidade_service_front <<frontend>>
+        component "fileImportService.js" as file_service_front <<frontend>>
+    }
+    
+    component "API Client\n(Axios)" as axios <<frontend>>
+}
+
+package "Camada de Comunicação" {
+    interface "HTTPS/TLS" as https
+    interface "API REST\nEndpoints" as api_rest
+}
+
+package "Camada de Aplicação\n(Backend - NestJS + Express + TypeScript)" {
+    
+    package "Módulo de Segurança" {
+        component "JWT Strategy" as jwt_strategy <<security>>
+        component "JWT Auth Guard" as jwt_guard <<security>>
+        component "Roles Guard\n(ADMIN/POLL_WORKER)" as roles_guard <<security>>
+        component "Auth Module" as auth_module <<security>>
+    }
+    
+    package "Controllers - API REST" {
+        component "Auth Controller\n/api/auth/*" as auth_controller <<backend>>
+        component "Admin Controller\n/api/admin/*" as admin_controller <<backend>>
+        component "Mesario Controller\n/api/mesario/*" as mesario_controller <<backend>>
+        component "Urna Controller\n/api/urna/*" as urna_controller <<backend>>
+        component "Identidade Controller\n/api/identidade/*" as identidade_controller <<backend>>
+        component "Health Controller\n/health" as health_controller <<backend>>
+    }
+    
+    package "DTOs e Validação" {
+        component "auth.dto.ts\n(class-validator)" as auth_dto <<backend>>
+        component "admin.dto.ts" as admin_dto <<backend>>
+        component "mesario.dto.ts" as mesario_dto <<backend>>
+        component "voto.dto.ts" as voto_dto <<backend>>
+    }
+    
+    package "Services - Lógica de Negócio" {
+        component "Auth Service" as auth_service <<backend>>
+        component "Admin Service" as admin_service <<backend>>
+        component "Mesario Service" as mesario_service <<backend>>
+        component "Urna Service" as urna_service <<backend>>
+        component "Identidade Service" as identidade_service <<backend>>
+        component "Database Init Service" as db_init_service <<backend>>
+    }
+    
+    package "Repositories - Acesso a Dados" {
+        component "Admin Repository" as admin_repo <<backend>>
+        component "Mesario Repository" as mesario_repo <<backend>>
+        component "Urna Repository" as urna_repo <<backend>>
+    }
+    
+    component "Prisma Service" as prisma_service <<backend>>
+}
+
+package "Camada de Persistência" {
+    component "Prisma ORM\n(Schema + Client)" as prisma_orm <<backend>>
+    
+    database "PostgreSQL\nDatabase" as postgres <<database>> {
+        
+        package "Tabelas de Usuários" {
+            component "Administrador\n(id, nome, email, senha)" as tb_admin <<database>>
+            component "Mesario\n(id, nome, usuario, senha)" as tb_mesario <<database>>
+        }
+        
+        package "Tabelas de Eleição" {
+            component "Eleicao\n(id, nome, status, ativa)" as tb_eleicao <<database>>
+            component "Chapa\n(id, nome, numero, eleicaoId)" as tb_chapa <<database>>
+            component "Eleitor\n(id, nome, matricula, jaVotou)" as tb_eleitor <<database>>
+        }
+        
+        package "Tabelas de Votação" {
+            component "Credencial\n(id, token, usada, expiresAt)" as tb_credencial <<database>>
+            component "Voto\n(id, eleicaoId, chapaId, tipo)" as tb_voto <<database>>
+        }
+    }
+}
+
+admin --> login_view
+mesario --> login_view
+eleitor --> urna_view
+
+login_view --> auth_store
+admin_dashboard --> eleicao_store
+admin_eleicoes --> eleicao_store
+admin_resultados --> eleicao_store
+mesario_dashboard --> eleicao_store
+mesario_busca --> eleicao_store
+mesario_auth --> eleicao_store
+urna_view --> eleicao_store
+urna_selecao --> eleicao_store
+
+router --> login_view
+router --> admin_dashboard
+router --> admin_eleicoes
+router --> admin_resultados
+router --> mesario_dashboard
+router --> mesario_busca
+router --> mesario_auth
+router --> urna_view
+router --> urna_selecao
+router --> urna_confirmacao
+router --> urna_sucesso
+
+auth_store --> auth_service_front
+eleicao_store --> admin_service_front
+eleicao_store --> mesario_service_front
+eleicao_store --> urna_service_front
+eleicao_store --> identidade_service_front
+
+admin_eleicoes --> file_service_front
+
+auth_service_front --> axios
+admin_service_front --> axios
+mesario_service_front --> axios
+urna_service_front --> axios
+identidade_service_front --> axios
+file_service_front --> axios
+
+axios --> https
+https --> api_rest
+
+api_rest --> auth_controller
+api_rest --> admin_controller
+api_rest --> mesario_controller
+api_rest --> urna_controller
+api_rest --> identidade_controller
+api_rest --> health_controller
+
+auth_controller ..> auth_dto : "valida"
+admin_controller ..> admin_dto : "valida"
+mesario_controller ..> mesario_dto : "valida"
+urna_controller ..> voto_dto : "valida"
+
+auth_controller --> jwt_guard : "protegido"
+admin_controller --> jwt_guard : "protegido"
+admin_controller --> roles_guard : "ADMIN only"
+mesario_controller --> jwt_guard : "protegido"
+mesario_controller --> roles_guard : "POLL_WORKER"
+identidade_controller --> jwt_guard : "protegido"
+
+jwt_guard --> jwt_strategy : "valida token"
+jwt_strategy --> auth_module
+roles_guard --> auth_module
+
+auth_controller --> auth_service
+admin_controller --> admin_service
+mesario_controller --> mesario_service
+urna_controller --> urna_service
+identidade_controller --> identidade_service
+
+auth_service --> prisma_service : "login"
+admin_service --> admin_repo
+mesario_service --> mesario_repo
+urna_service --> urna_repo
+identidade_service --> prisma_service
+db_init_service --> prisma_service
+
+admin_repo --> prisma_service
+mesario_repo --> prisma_service
+urna_repo --> prisma_service
+
+prisma_service --> prisma_orm
+prisma_orm --> postgres
+
+prisma_orm --> tb_admin : "CRUD"
+prisma_orm --> tb_mesario : "CRUD"
+prisma_orm --> tb_eleicao : "CRUD"
+prisma_orm --> tb_chapa : "CRUD"
+prisma_orm --> tb_eleitor : "CRUD"
+prisma_orm --> tb_credencial : "CRUD"
+prisma_orm --> tb_voto : "INSERT only\n(anônimo)"
+
+tb_eleicao --> tb_chapa : "1:N"
+tb_eleicao --> tb_eleitor : "1:N"
+tb_eleicao --> tb_credencial : "1:N"
+tb_eleicao --> tb_voto : "1:N"
+tb_eleitor --> tb_credencial : "1:N"
+tb_chapa --> tb_voto : "0:N"
+
+note right of urna_controller
+  **Votação Anônima:**
+  Não requer autenticação JWT
+  Aceita apenas credencial
+  Nenhum vínculo com eleitor
+end note
+
+note right of tb_voto
+  **Garantia de Anonimato:**
+  Não possui campo eleitorId
+  Impossível rastrear voto
+  Registra apenas timestamp
+end note
+
+note right of jwt_guard
+  **Segurança JWT:**
+  Valida token em todas
+  rotas protegidas
+  Extrai userId e role
+end note
+
+note right of prisma_orm
+  **ORM Layer:**
+  Type-safe queries
+  Schema migrations
+  Connection pooling
+end note
+
+legend bottom
+  **Tecnologias:**
+  • Frontend: Vue.js 3 + Composition API + Vuetify + Pinia + Axios
+  • Backend: NestJS + Express + TypeScript + JWT
+  • Database: PostgreSQL + Prisma ORM
+  • Segurança: HTTPS/TLS + JWT + RBAC + Bcrypt
+  • Padrões: MVC + Service Layer + Repository Pattern + DTO
+  
+  **Fluxos Principais:**
+  1. Admin: Login → Criar/Gerenciar Eleições → Visualizar Resultados
+  2. Mesário: Login → Buscar Eleitor → Autorizar → Gerar Credencial
+  3. Urna: Inserir Credencial → Validar → Selecionar Voto → Confirmar → Registrar (Anônimo)
+endlegend
+
+@enduml
