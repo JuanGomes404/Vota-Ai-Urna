@@ -351,15 +351,23 @@ export default {
     }
   },
   async mounted() {
+    console.log('🏠 Dashboard montado')
+    console.log('👤 Auth Store - isAuthenticated:', this.authStore.isAuthenticated)
+    console.log('👤 Auth Store - user:', this.authStore.user)
+    console.log('🔑 Token no localStorage:', localStorage.getItem('auth_token') ? 'SIM' : 'NÃO')
+    
     await this.carregarEleicoes()
   },
   methods: {
     async carregarEleicoes() {
+      console.log('📥 Iniciando carregamento de eleições...')
+      
       this.loading = true
       try {
         await this.eleicaoStore.carregarEleicoes()
+        console.log('✅ Eleições carregadas com sucesso')
       } catch (error) {
-        console.error('Erro ao carregar eleições:', error)
+        console.error('❌ Erro ao carregar eleições:', error)
       } finally {
         this.loading = false
       }

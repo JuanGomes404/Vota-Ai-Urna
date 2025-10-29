@@ -1,7 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import * as fs from 'fs';
-import * as path from 'path';
 
 @Injectable()
 export class DatabaseInitService implements OnModuleInit {
@@ -68,20 +66,38 @@ export class DatabaseInitService implements OnModuleInit {
       const mesarioCount = await this.prisma.mesario.count();
       
       if (adminCount === 0 && mesarioCount === 0) {
-        console.log('📄 Executando script de dados iniciais...');
+        console.log('📄 Criando dados iniciais via Prisma...');
         
-        // Ler e executar o script SQL
-        const initScriptPath = path.join(__dirname, 'init-data.sql');
-        
-        if (fs.existsSync(initScriptPath)) {
-          const initScript = fs.readFileSync(initScriptPath, 'utf8');
-          await this.prisma.$executeRawUnsafe(initScript);
+        try {
+          // Criar admin padrão
+          await this.prisma.administrador.create({
+            data: {
+              nome: 'Administrador Vota Ai',
+              email: 'admin@vota-ai.com',
+              senha: 'admin123',
+            },
+          });
+          console.log('✅ Administrador criado: admin@vota-ai.com / admin123');
+
+          // Criar mesário padrão
+          await this.prisma.mesario.create({
+            data: {
+              nome: 'Mesário Vota Ai',
+              usuario: 'mesario01',
+              senha: 'mesario123',
+            },
+          });
+          console.log('✅ Mesário criado: mesario01 / mesario123');
+          
           console.log('✅ Dados iniciais criados com sucesso!');
-        } else {
-          console.log('⚠️ Script de dados iniciais não encontrado');
+        } catch (error) {
+          console.error('❌ Erro ao criar dados iniciais:', error);
+          throw error;
         }
       } else {
         console.log('✅ Dados iniciais já existem');
+        console.log(`   - Administradores: ${adminCount}`);
+        console.log(`   - Mesários: ${mesarioCount}`);
       }
     } catch (error) {
       console.error('Erro ao executar dados iniciais:', error);
