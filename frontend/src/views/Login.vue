@@ -119,18 +119,39 @@ export default {
       this.error = null
 
       try {
+        console.log('🔐 Iniciando login...')
+        console.log('👤 Usuário:', this.credentials.usuario)
+        
         const authStore = useAuthStore()
-        await authStore.login(this.credentials)
+        const response = await authStore.login(this.credentials)
+        
+        console.log('✅ Login bem-sucedido!')
+        console.log('👤 User data:', response.user)
+        console.log('🎭 Role:', response.user?.role)
+        console.log('🔑 Token recebido:', response.token ? 'SIM' : 'NÃO')
         
         // Redirecionar baseado no role
         if (authStore.isAdmin) {
-          this.$router.push('/admin')
+          console.log('➡️ Redirecionando para /admin')
+          await this.$router.push('/admin')
         } else if (authStore.isMesario) {
-          this.$router.push('/mesario')
+          console.log('➡️ Redirecionando para /mesario')
+          await this.$router.push('/mesario')
+        } else {
+          console.warn('⚠️ Role não identificado:', response.user?.role)
+          this.error = 'Tipo de usuário não reconhecido'
         }
       } catch (error) {
+        console.error('❌ Erro no login:', error)
+        console.error('❌ Error details:', {
+          message: error.message,
+          error: error.error,
+          response: error.response,
+          status: error.status
+        })
+        
         // Exibir mensagem de erro específica
-        this.error = error.error || 'Erro ao fazer login. Verifique suas credenciais.'
+        this.error = error.error || error.message || 'Erro ao fazer login. Verifique suas credenciais.'
         
         // Limpar apenas o campo de senha após erro
         this.credentials.senha = ''

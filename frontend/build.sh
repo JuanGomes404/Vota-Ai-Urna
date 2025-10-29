@@ -3,6 +3,14 @@
 # Script para build e deploy do frontend
 echo "🚀 Iniciando build do frontend Vue.js..."
 
+# Verificar e definir VITE_API_URL
+if [ -z "$VITE_API_URL" ]; then
+    echo "⚠️ VITE_API_URL não definida! Usando valor padrão..."
+    export VITE_API_URL="https://vota-ai-urna.onrender.com"
+fi
+
+echo "📍 VITE_API_URL: $VITE_API_URL"
+
 # Verificar se Node.js está instalado
 if ! command -v node &> /dev/null; then
     echo "❌ Node.js não encontrado. Instale Node.js 18+ primeiro."
