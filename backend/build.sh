@@ -9,6 +9,10 @@ npm install
 echo "🔧 Generating Prisma Client..."
 cd database
 npx prisma generate
+
+echo "🗄️ Running Prisma migrations..."
+npx prisma migrate deploy
+
 cd ..
 
 echo "🏗️ Building NestJS application..."
