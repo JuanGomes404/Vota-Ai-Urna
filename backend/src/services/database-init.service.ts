@@ -49,6 +49,20 @@ export class DatabaseInitService implements OnModuleInit {
     try {
       console.log('📝 Executando dados iniciais...');
       
+      // Verificar se as tabelas existem antes de tentar contar
+      const tables = await this.prisma.$queryRaw<Array<{ table_name: string }>>`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name IN ('Administrador', 'Mesario')
+      `;
+
+      if (!tables || tables.length < 2) {
+        console.log('⚠️ Tabelas não encontradas. Pulando inicialização de dados.');
+        console.log('💡 Execute: npx prisma migrate deploy');
+        return;
+      }
+      
       // Verificar se já existem dados
       const adminCount = await this.prisma.administrador.count();
       const mesarioCount = await this.prisma.mesario.count();
@@ -71,6 +85,7 @@ export class DatabaseInitService implements OnModuleInit {
       }
     } catch (error) {
       console.error('Erro ao executar dados iniciais:', error);
+      throw error; // Re-throw para garantir que o erro seja visível
     }
   }
 }
