@@ -103,6 +103,7 @@
               <v-icon class="mr-2">mdi-plus</v-icon>
               <span class="d-none d-sm-inline">CRIAR NOVA ELEIÇÃO</span>
               <span class="d-inline d-sm-none">CRIAR ELEIÇÃO</span>
+            </v-btn>
           </v-col>
         </v-row>
 
