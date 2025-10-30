@@ -85,7 +85,10 @@ api.interceptors.response.use(
       console.error('  Erro:', error.message)
     }
     
-    if (status === 401) {
+    // Redirecionar para login apenas se não for uma tentativa de login
+    // (para evitar redirecionamento quando credenciais estão incorretas)
+    if (status === 401 && url && !url.includes('/auth/login')) {
+      console.warn('⚠️ Token inválido ou expirado. Redirecionando para login...')
       localStorage.removeItem('auth_token')
       localStorage.removeItem('user_data')
       window.location.href = '/login'
