@@ -73,8 +73,9 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status
     const url = error.config?.url
+    const method = error.config?.method?.toUpperCase()
     
-    console.error(`❌ ${error.config?.method?.toUpperCase()} ${url} - Status: ${status}`)
+    console.error(`❌ ${method} ${url} - Status: ${status}`)
     
     if (error.response) {
       console.error('  Response data:', error.response.data)
@@ -85,13 +86,22 @@ api.interceptors.response.use(
       console.error('  Erro:', error.message)
     }
     
-    // Redirecionar para login apenas se não for uma tentativa de login
-    // (para evitar redirecionamento quando credenciais estão incorretas)
-    if (status === 401 && url && !url.includes('/auth/login')) {
+    // Redirecionar para login apenas se:
+    // 1. Status é 401 (Unauthorized)
+    // 2. NÃO é uma tentativa de login (POST /auth/login)
+    // 3. NÃO é uma rota da urna (endpoints públicos)
+    const isLoginAttempt = url?.includes('/auth/login') || url?.includes('/auth/logout')
+    const isPublicUrnaRoute = url?.includes('/urna/')
+    
+    if (status === 401 && !isLoginAttempt && !isPublicUrnaRoute) {
       console.warn('⚠️ Token inválido ou expirado. Redirecionando para login...')
       localStorage.removeItem('auth_token')
       localStorage.removeItem('user_data')
-      window.location.href = '/login'
+      
+      // Evitar redirecionamento se já estiver na página de login
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login'
+      }
     }
     
     return Promise.reject(error)

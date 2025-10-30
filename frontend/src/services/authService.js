@@ -5,13 +5,22 @@ export const authService = {
   // Login unificado (admin ou mesário)
   async login(credentials) {
     try {
+      // Limpar qualquer dado antigo antes de tentar login
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('user_data')
+      
       const response = await api.post('/auth/login', credentials)
+      
       if (response.data.token) {
         localStorage.setItem('auth_token', response.data.token)
         localStorage.setItem('user_data', JSON.stringify(response.data.user))
       }
       return response.data
     } catch (error) {
+      // Garantir que localStorage está limpo em caso de erro
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('user_data')
+      
       // Extrair mensagem de erro específica
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error || 
