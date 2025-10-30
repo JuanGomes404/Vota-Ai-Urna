@@ -1,12 +1,43 @@
 <template>
-  <v-app>
+  <v-app v-touch="{ right: onSwipeRight }">
     <router-view />
   </v-app>
 </template>
 
 <script>
+import { onMounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { applyMobileTableLabels } from '@/utils/mobileTable'
 export default {
   name: 'App'
+  ,setup(){
+    const router = useRouter()
+    const route = useRoute()
+
+    const enhanceTables = async () => {
+      await nextTick()
+      // Delay pequeno para garantir que o DOM da tabela esteja pronto
+      setTimeout(() => applyMobileTableLabels(document), 50)
+    }
+
+    onMounted(() => {
+      enhanceTables()
+    })
+
+    // Reaplicar ao trocar de rota
+    watch(() => route.fullPath, () => enhanceTables())
+
+    const onSwipeRight = () => {
+      // Navegar para trás se houver histórico; senão ir para Home
+      if (window.history.length > 1) {
+        router.back()
+      } else {
+        router.push('/')
+      }
+    }
+
+    return { onSwipeRight }
+  }
 }
 </script>
 

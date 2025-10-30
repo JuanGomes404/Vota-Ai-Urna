@@ -38,30 +38,30 @@
       </v-menu>
     </v-app-bar>
 
-    <v-container class="pt-6 pt-md-12">
+    <v-container class="pt-4 pt-sm-6 pt-md-12 px-2 px-sm-3">
       <v-row justify="center">
         <v-col cols="12" sm="11" md="10" lg="9" xl="8">
-          <v-card elevation="4" class="pa-4 pa-sm-6 pa-md-8">
-          <v-row class="mt-4 mt-md-8">
-            <v-col cols="12" md="6" class="mb-4 mb-md-0">
+          <v-card elevation="4" class="main-card pa-3 pa-sm-6 pa-md-8">
+          <v-row class="mt-2 mt-sm-4 mt-md-8">
+            <v-col cols="12" md="6" class="mb-3 mb-md-4">
               <v-card
                 elevation="2"
-                class="pa-4 pa-sm-6 h-100 d-flex flex-column"
+                class="action-card pa-4 pa-sm-6 h-100 d-flex flex-column"
                 hover
                 @click="$router.push('/urna')"
               >
-                <v-icon size="48" size-sm="64" color="primary" class="mb-3 mb-sm-4">
+                <v-icon :size="iconSize" color="primary" class="mb-3 mb-sm-4">
                   mdi-vote
                 </v-icon>
-                <h3 class="text-h6 text-sm-h5 mb-2 mb-sm-4">Urna Eletrônica</h3>
-                <p class="text-body-2 text-sm-body-1 mb-4 flex-grow-1" style="color: #666;">
+                <h3 class="card-title text-h6 text-sm-h5 mb-2 mb-sm-4">Urna Eletrônica</h3>
+                <p class="card-description text-body-2 text-sm-body-1 mb-3 mb-sm-4 flex-grow-1">
                   Acesse a urna eletrônica para realizar seu voto de forma segura e transparente.
                 </p>
                 <v-btn
                   color="primary"
                   size="large"
                   block
-                  class="mt-auto"
+                  class="mt-auto text-none"
                   @click.stop="$router.push('/urna')"
                 >
                   Votar Agora
@@ -69,25 +69,25 @@
               </v-card>
             </v-col>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="6" class="mb-3 mb-md-4">
               <v-card
                 elevation="2"
-                class="pa-4 pa-sm-6 h-100 d-flex flex-column"
+                class="action-card pa-4 pa-sm-6 h-100 d-flex flex-column"
                 hover
                 @click="$router.push('/login')"
               >
-                <v-icon size="48" size-sm="64" color="secondary" class="mb-3 mb-sm-4">
+                <v-icon :size="iconSize" color="secondary" class="mb-3 mb-sm-4">
                   mdi-cog
                 </v-icon>
-                <h3 class="text-h6 text-sm-h5 mb-2 mb-sm-4">Painel Administrativo</h3>
-                <p class="text-body-2 text-sm-body-1 mb-4 flex-grow-1" style="color: #666;">
+                <h3 class="card-title text-h6 text-sm-h5 mb-2 mb-sm-4">Painel Administrativo</h3>
+                <p class="card-description text-body-2 text-sm-body-1 mb-3 mb-sm-4 flex-grow-1">
                   Acesse o painel para administradores e mesários gerenciarem as eleições.
                 </p>
                 <v-btn
                   color="secondary"
                   size="large"
                   block
-                  class="mt-auto"
+                  class="mt-auto text-none"
                   @click.stop="$router.push('/login')"
                 >
                   Acessar Painel
@@ -96,7 +96,7 @@
             </v-col>
           </v-row>
 
-          <v-divider class="my-6 my-md-8" />
+          <v-divider class="my-4 my-sm-6 my-md-8" />
 
           <v-row>
             <v-col cols="12" sm="4" class="text-center mb-4 mb-sm-0">
@@ -138,12 +138,20 @@
 
 <script>
 import { useAuthStore } from '@/stores/authStore'
+import { useDisplay } from 'vuetify'
 
 export default {
   name: 'Home',
   setup() {
     const authStore = useAuthStore()
-    return { authStore }
+    const display = useDisplay()
+    return { authStore, display }
+  },
+  computed: {
+    iconSize() {
+      // Responsivo: menor em mobile, maior em desktop
+      return this.display.xs ? 40 : this.display.sm ? 48 : 64
+    }
   },
   methods: {
     async handleLogout() {
@@ -168,72 +176,80 @@ export default {
   min-height: 100vh;
 }
 
-.v-card {
+.main-card {
+  border-radius: 16px;
+}
+
+.action-card {
   border-radius: 12px;
-  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.v-card:hover {
+.action-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Estilo para o título do cabeçalho */
+.card-title {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.card-description {
+  color: #666;
+  line-height: 1.6;
+}
+
 .header-title {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 500;
-}
-
-@media (max-width: 959px) {
-  .header-title {
-    font-size: 1rem;
-  }
-}
-
-/* Garantir que títulos não sejam cortados */
-h1, h2, h3, h4, h5, h6 {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.3;
-}
-
-/* Título principal */
-.main-title {
-  line-height: 1.4;
-  margin-bottom: 8px;
-  padding: 0;
-  word-wrap: break-word;
-  white-space: normal;
-}
-
-.subtitle-text {
-  line-height: 1.5;
-  word-wrap: break-word;
-  white-space: normal;
-}
-
-/* Títulos específicos em cards */
-.v-card h3, .v-card h4 {
-  min-height: 1.5em;
-  word-break: break-word;
-  overflow-wrap: break-word;
 }
 
 /* Mobile optimizations */
 @media (max-width: 599px) {
-  .v-card {
-    border-radius: 8px;
+  .main-card {
+    border-radius: 12px;
   }
   
-  .v-btn {
-    font-size: 0.875rem;
+  .action-card {
+    border-radius: 8px;
+    min-height: auto;
+  }
+  
+  .action-card:hover {
+    transform: none; /* Desabilita hover em mobile */
+  }
+  
+  .action-card:active {
+    transform: scale(0.98);
+  }
+  
+  .header-title {
+    font-size: 0.9rem;
+  }
+  
+  .card-title {
+    font-size: 1.1rem !important;
+  }
+  
+  .card-description {
+    font-size: 0.875rem !important;
+    line-height: 1.5;
   }
 }
 
-/* Ensure proper spacing on small devices */
-@media (max-width: 959px) {
-  .v-app-bar-title {
-    font-size: 1rem;
+/* Tablets */
+@media (min-width: 600px) and (max-width: 959px) {
+  .header-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 960px) {
+  .header-title {
+    font-size: 1.25rem;
   }
 }
 </style>

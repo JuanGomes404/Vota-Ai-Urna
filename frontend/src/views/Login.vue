@@ -1,10 +1,11 @@
 <template>
-  <v-container fluid class="login-container pa-4">
+  <v-container fluid class="login-container pa-2 pa-sm-4">
     <v-row justify="center" align="center" class="fill-height">
-      <v-col cols="12" sm="10" md="8" lg="6" xl="4">
-        <v-card elevation="8" class="pa-4 pa-sm-6 pa-md-8">
-          <v-card-title class="text-center mb-4 mb-md-6 px-0">
-            <h2 class="text-h6 text-sm-h5 text-md-h4 font-weight-bold" style="color: #005A9C;">
+      <v-col cols="12" sm="10" md="8" lg="6" xl="4" class="pa-2 pa-sm-3">
+        <v-card elevation="8" class="login-card pa-3 pa-sm-6 pa-md-8">
+          <!-- Logo ou Título -->
+          <v-card-title class="text-center mb-3 mb-md-6 px-0">
+            <h2 class="login-title text-h6 text-sm-h5 text-md-h4 font-weight-bold">
               Login Vota Aí
             </h2>
           </v-card-title>
@@ -16,9 +17,10 @@
               prepend-inner-icon="mdi-account"
               variant="outlined"
               :rules="[rules.required]"
-              class="mb-4"
+              class="mb-3"
               density="comfortable"
               persistent-placeholder
+              hide-details="auto"
             />
 
             <v-text-field
@@ -28,58 +30,63 @@
               variant="outlined"
               type="password"
               :rules="[rules.required]"
-              class="mb-6"
+              class="mb-4"
               density="comfortable"
               persistent-placeholder
+              hide-details="auto"
             />
 
             <!-- Indicador de Loading (Backend acordando) -->
-            <div v-if="loading && showBackendWakingAlert" class="text-center mb-4">
+            <div v-if="loading && showBackendWakingAlert" class="text-center my-3">
               <v-progress-circular
                 indeterminate
                 color="primary"
-                size="48"
-                width="5"
+                size="40"
+                width="4"
               />
-              <p class="text-body-2 text-medium-emphasis mt-3">
+              <p class="text-caption text-sm-body-2 text-medium-emphasis mt-2">
                 Aguarde, conectando ao servidor...
               </p>
             </div>
 
-            <!-- Alerta de Erro -->
+            <!-- Alerta de Erro - Compacto para mobile -->
             <v-alert
               v-if="error"
               type="error"
               variant="tonal"
-              class="mb-4"
+              class="mb-3"
               closable
-              prominent
+              density="compact"
               border="start"
               @click:close="error = null"
             >
-              <v-alert-title class="text-h6 mb-2">
-                <v-icon class="mr-2">mdi-alert-circle</v-icon>
-                Falha na Autenticação
-              </v-alert-title>
-              {{ error }}
+              <div class="d-flex align-center">
+                <v-icon size="small" class="mr-2">mdi-alert-circle</v-icon>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold">Falha na Autenticação</div>
+                  <div class="text-caption text-sm-body-2">{{ error }}</div>
+                </div>
+              </div>
             </v-alert>
 
-            <!-- Alerta de Sucesso (Logout) -->
+            <!-- Alerta de Sucesso (Logout) - Compacto para mobile -->
             <v-alert
               v-if="successMessage"
               type="success"
               variant="tonal"
-              class="mb-4"
+              class="mb-3"
               closable
-              prominent
+              density="compact"
               border="start"
               @click:close="successMessage = null"
             >
-              <v-alert-title class="text-h6 mb-2">
-                <v-icon class="mr-2">mdi-check-circle</v-icon>
-                Sucesso
-              </v-alert-title>
-              {{ successMessage }}
+              <div class="d-flex align-center">
+                <v-icon size="small" class="mr-2">mdi-check-circle</v-icon>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold">Sucesso</div>
+                  <div class="text-caption text-sm-body-2">{{ successMessage }}</div>
+                </div>
+              </div>
             </v-alert>
 
             <v-btn
@@ -88,23 +95,28 @@
               size="large"
               block
               :loading="loading"
-              class="mb-4"
+              :disabled="loading"
+              class="mb-3 mb-sm-4 text-none"
+              elevation="2"
             >
-              <v-icon class="mr-2">mdi-login</v-icon>
-              ENTRAR
+              <v-icon class="mr-2" size="small">mdi-login</v-icon>
+              Entrar
             </v-btn>
 
-            <v-divider class="my-4" />
+            <v-divider class="my-3 my-sm-4" />
 
-            <div class="d-flex flex-column gap-2">
+            <div class="d-flex flex-column mobile-buttons">
               <v-btn
-                variant="text"
+                variant="outlined"
                 color="primary"
                 @click="goToUrna"
                 block
+                size="default"
+                class="mb-2 text-none"
               >
-                <v-icon class="mr-2">mdi-vote</v-icon>
-                Acessar Urna Eletrônica
+                <v-icon class="mr-2" size="small">mdi-vote</v-icon>
+                <span class="d-none d-sm-inline">Acessar Urna Eletrônica</span>
+                <span class="d-inline d-sm-none">Urna Eletrônica</span>
               </v-btn>
               
               <v-btn
@@ -112,9 +124,12 @@
                 color="secondary"
                 @click="$router.push('/')"
                 block
+                size="default"
+                class="text-none"
               >
-                <v-icon class="mr-2">mdi-home</v-icon>
-                Voltar ao Início
+                <v-icon class="mr-2" size="small">mdi-home</v-icon>
+                <span class="d-none d-sm-inline">Voltar ao Início</span>
+                <span class="d-inline d-sm-none">Início</span>
               </v-btn>
             </div>
           </v-form>
@@ -263,10 +278,73 @@ export default {
 .login-container {
   background: linear-gradient(135deg, #005A9C 0%, #0277BD 100%);
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 8px;
 }
 
-.v-card {
+.login-card {
   border-radius: 16px;
+  max-width: 100%;
+  width: 100%;
+}
+
+.login-title {
+  color: #005A9C;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+/* Otimizações para mobile */
+@media (max-width: 599px) {
+  .login-container {
+    padding: 4px;
+  }
+  
+  .login-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .login-title {
+    font-size: 1.25rem !important;
+    line-height: 1.4;
+  }
+  
+  /* Botões mais compactos no mobile */
+  .mobile-buttons .v-btn {
+    min-height: 42px;
+    font-size: 0.9rem;
+  }
+  
+  /* Alertas mais compactos */
+  .v-alert {
+    padding: 8px 12px !important;
+  }
+  
+  /* Campos de input otimizados */
+  :deep(.v-field) {
+    font-size: 16px; /* Previne zoom no iOS */
+  }
+  
+  :deep(.v-field__input) {
+    min-height: 48px; /* Touch-friendly */
+  }
+}
+
+/* Tablets */
+@media (min-width: 600px) and (max-width: 959px) {
+  .login-card {
+    border-radius: 16px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 960px) {
+  .login-container {
+    padding: 16px;
+  }
 }
 
 /* Garantir que títulos não sejam cortados */
@@ -274,21 +352,21 @@ h1, h2, h3, h4, h5, h6 {
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  line-height: 1.2;
 }
 
-.v-card {
-  border-radius: 16px;
-}
-
-/* Mobile optimizations */
-@media (max-width: 599px) {
-  .v-card {
-    border-radius: 8px;
-  }
-}
-
-.gap-2 {
+/* Espaçamento consistente */
+.mobile-buttons {
   gap: 8px;
+}
+
+/* Smooth transitions */
+.v-btn, .v-alert {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus states acessíveis */
+.v-btn:focus-visible {
+  outline: 2px solid #005A9C;
+  outline-offset: 2px;
 }
 </style>

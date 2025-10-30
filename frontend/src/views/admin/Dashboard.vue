@@ -39,54 +39,57 @@
     </v-app-bar>
 
     <v-main>
-      <v-container fluid class="pa-4 pa-sm-6 pa-md-8">
+      <v-container fluid class="pa-2 pa-sm-4 pa-md-6 pa-lg-8">
         <v-row>
           <v-col cols="12">
-            <h1 class="text-h5 text-sm-h4 text-md-h3 font-weight-bold mb-4 mb-md-6" style="color: #005A9C;">
-              PAINEL DO ADMINISTRADOR
+            <h1 class="page-title text-h6 text-sm-h5 text-md-h4 font-weight-bold mb-3 mb-md-6">
+              <span class="d-none d-sm-inline">PAINEL DO ADMINISTRADOR</span>
+              <span class="d-inline d-sm-none">ADMIN</span>
             </h1>
           </v-col>
         </v-row>
 
-        <v-row class="mb-4 mb-md-6">
-          <v-col cols="12" sm="6" md="4">
-            <v-card elevation="4" class="pa-4 text-center">
-              <v-icon size="48" color="primary" class="mb-3">
+        <!-- Cards de Estatísticas -->
+        <v-row class="mb-3 mb-md-6">
+          <v-col cols="12" sm="6" md="4" class="mb-2 mb-sm-0">
+            <v-card elevation="4" class="stats-card pa-3 pa-sm-4 text-center h-100">
+              <v-icon :size="iconSize" color="primary" class="mb-2 mb-sm-3">
                 mdi-vote
               </v-icon>
-              <h3 class="text-h6 mb-2">Eleições Ativas</h3>
-              <p class="text-h4 font-weight-bold primary--text">
+              <h3 class="text-subtitle-1 text-sm-h6 mb-1 mb-sm-2">Eleições Ativas</h3>
+              <p class="text-h5 text-sm-h4 font-weight-bold primary--text ma-0">
                 {{ eleicaoStore.eleicoesAtivas.length }}
               </p>
             </v-card>
           </v-col>
           
-          <v-col cols="12" sm="6" md="4">
-            <v-card elevation="4" class="pa-4 text-center">
-              <v-icon size="48" color="success" class="mb-3">
+          <v-col cols="12" sm="6" md="4" class="mb-2 mb-sm-0">
+            <v-card elevation="4" class="stats-card pa-3 pa-sm-4 text-center h-100">
+              <v-icon :size="iconSize" color="success" class="mb-2 mb-sm-3">
                 mdi-check-circle
               </v-icon>
-              <h3 class="text-h6 mb-2">Eleições Encerradas</h3>
-              <p class="text-h4 font-weight-bold" style="color: #00843D;">
+              <h3 class="text-subtitle-1 text-sm-h6 mb-1 mb-sm-2">Eleições Encerradas</h3>
+              <p class="text-h5 text-sm-h4 font-weight-bold success--text ma-0">
                 {{ eleicaoStore.eleicoesEncerradas.length }}
               </p>
             </v-card>
           </v-col>
           
-          <v-col cols="12" sm="6" md="4">
-            <v-card elevation="4" class="pa-4 text-center">
-              <v-icon size="48" color="warning" class="mb-3">
+          <v-col cols="12" sm="12" md="4">
+            <v-card elevation="4" class="stats-card pa-3 pa-sm-4 text-center h-100">
+              <v-icon :size="iconSize" color="warning" class="mb-2 mb-sm-3">
                 mdi-file-document-outline
               </v-icon>
-              <h3 class="text-h6 mb-2">Rascunhos</h3>
-              <p class="text-h4 font-weight-bold" style="color: #FDB913;">
+              <h3 class="text-subtitle-1 text-sm-h6 mb-1 mb-sm-2">Rascunhos</h3>
+              <p class="text-h5 text-sm-h4 font-weight-bold warning--text ma-0">
                 {{ eleicaoStore.eleicoesCriadas.length }}
               </p>
             </v-card>
           </v-col>
         </v-row>
 
-        <v-row class="mb-4 mb-md-6">
+        <!-- Botão Criar Eleição -->
+        <v-row class="mb-3 mb-md-6">
           <v-col cols="12">
             <v-btn
               color="primary"
@@ -94,61 +97,78 @@
               @click="criarEleicao"
               :loading="loading"
               block
-              class="d-sm-none"
+              class="text-none"
+              elevation="2"
             >
               <v-icon class="mr-2">mdi-plus</v-icon>
-              CRIAR ELEIÇÃO
-            </v-btn>
-            <div class="text-right d-none d-sm-block">
-              <v-btn
-                color="primary"
-                size="large"
-                @click="criarEleicao"
-                :loading="loading"
-              >
-                <v-icon class="mr-2">mdi-plus</v-icon>
-                CRIAR ELEIÇÃO
-              </v-btn>
-            </div>
+              <span class="d-none d-sm-inline">CRIAR NOVA ELEIÇÃO</span>
+              <span class="d-inline d-sm-none">CRIAR ELEIÇÃO</span>
           </v-col>
         </v-row>
 
         <!-- Eleições Ativas -->
-        <v-row v-if="eleicaoStore.eleicoesAtivas.length > 0" class="mb-6">
+        <v-row v-if="eleicaoStore.eleicoesAtivas.length > 0" class="mb-4 mb-md-6">
           <v-col cols="12">
-            <h2 class="text-h5 font-weight-bold mb-4">Eleições Ativas</h2>
+            <h2 class="section-title text-h6 text-sm-h5 font-weight-bold mb-3 mb-md-4">Eleições Ativas</h2>
             <v-card
               v-for="eleicao in eleicaoStore.eleicoesAtivas"
               :key="eleicao.id"
               elevation="2"
-              class="mb-4 pa-4"
+              class="election-card mb-3 pa-3 pa-sm-4"
             >
               <v-row align="center">
-                <v-col cols="12" md="6">
-                  <h3 class="text-h6 font-weight-bold">{{ eleicao.nome }}</h3>
-                  <p class="text-body-2 grey--text">{{ eleicao.descricao }}</p>
-                  <v-chip color="success" size="small">
-                    STATUS: {{ eleicao.status }}
+                <v-col cols="12" md="7" class="mb-2 mb-md-0">
+                  <h3 class="text-subtitle-1 text-sm-h6 font-weight-bold mb-1">{{ eleicao.nome }}</h3>
+                  <p class="text-caption text-sm-body-2 text-medium-emphasis mb-2">{{ eleicao.descricao }}</p>
+                  <v-chip color="success" size="small" class="text-uppercase">
+                    {{ eleicao.status }}
                   </v-chip>
                 </v-col>
-                <v-col cols="12" md="6" class="text-right">
-                  <v-btn
-                    color="primary"
-                    variant="outlined"
-                    class="mr-2"
-                    @click="gerenciarEleicao(eleicao)"
-                  >
-                    <v-icon left>mdi-cog</v-icon>
-                    Gerenciar
-                  </v-btn>
-                  <v-btn
-                    color="error"
-                    variant="outlined"
-                    @click="encerrarEleicao(eleicao.id)"
-                  >
-                    <v-icon left>mdi-stop</v-icon>
-                    Encerrar
-                  </v-btn>
+                <v-col cols="12" md="5">
+                  <div class="d-flex flex-column flex-sm-row gap-2 justify-end">
+                    <v-btn
+                      color="primary"
+                      variant="outlined"
+                      size="small"
+                      @click="gerenciarEleicao(eleicao)"
+                      block
+                      class="d-sm-none text-none"
+                    >
+                      <v-icon size="small" class="mr-1">mdi-cog</v-icon>
+                      Gerenciar
+                    </v-btn>
+                    <v-btn
+                      color="primary"
+                      variant="outlined"
+                      size="small"
+                      @click="gerenciarEleicao(eleicao)"
+                      class="d-none d-sm-inline-flex text-none"
+                    >
+                      <v-icon size="small" class="mr-1">mdi-cog</v-icon>
+                      Gerenciar
+                    </v-btn>
+                    <v-btn
+                      color="error"
+                      variant="outlined"
+                      size="small"
+                      @click="encerrarEleicao(eleicao.id)"
+                      block
+                      class="d-sm-none text-none"
+                    >
+                      <v-icon size="small" class="mr-1">mdi-stop</v-icon>
+                      Encerrar
+                    </v-btn>
+                    <v-btn
+                      color="error"
+                      variant="outlined"
+                      size="small"
+                      @click="encerrarEleicao(eleicao.id)"
+                      class="d-none d-sm-inline-flex text-none"
+                    >
+                      <v-icon size="small" class="mr-1">mdi-stop</v-icon>
+                      Encerrar
+                    </v-btn>
+                  </div>
                 </v-col>
               </v-row>
             </v-card>
@@ -158,68 +178,81 @@
         <!-- Eleições Encerradas/Futuras -->
         <v-row>
           <v-col cols="12">
-            <h2 class="text-h5 font-weight-bold mb-4">Outras Eleições</h2>
+            <h2 class="section-title text-h6 text-sm-h5 font-weight-bold mb-3 mb-md-4">Outras Eleições</h2>
             <v-card
               v-for="eleicao in [...eleicaoStore.eleicoesEncerradas, ...eleicaoStore.eleicoesCriadas]"
               :key="eleicao.id"
               elevation="2"
-              class="mb-4 pa-4"
+              class="election-card mb-3 pa-3 pa-sm-4"
             >
               <v-row align="center">
-                <v-col cols="12" md="6">
-                  <h3 class="text-h6 font-weight-bold">{{ eleicao.nome }}</h3>
-                  <p class="text-body-2 grey--text">{{ eleicao.descricao }}</p>
+                <v-col cols="12" md="7" class="mb-2 mb-md-0">
+                  <h3 class="text-subtitle-1 text-sm-h6 font-weight-bold mb-1">{{ eleicao.nome }}</h3>
+                  <p class="text-caption text-sm-body-2 text-medium-emphasis mb-2">{{ eleicao.descricao }}</p>
                   <v-chip
                     :color="eleicao.status === 'Encerrada' ? 'success' : 'warning'"
                     size="small"
+                    class="text-uppercase"
                   >
                     {{ eleicao.status }}
                   </v-chip>
                 </v-col>
-                <v-col cols="12" md="6" class="text-right">
-                  <!-- Eleições Encerradas: Ver Resultados -->
-                  <v-btn
-                    v-if="eleicao.status === 'Encerrada'"
-                    color="info"
-                    variant="outlined"
-                    class="mr-2"
-                    @click="verResultados(eleicao.id)"
-                  >
-                    <v-icon left>mdi-chart-line</v-icon>
-                    Resultados
-                  </v-btn>
-                  
-                  <!-- Eleições Criadas (Rascunho): Gerenciar E Iniciar -->
-                  <template v-if="eleicao.status === 'Criada'">
+                <v-col cols="12" md="5">
+                  <div class="d-flex flex-column flex-sm-row gap-2 justify-end">
+                    <!-- Eleições Encerradas: Ver Resultados -->
                     <v-btn
+                      v-if="eleicao.status === 'Encerrada'"
+                      color="info"
+                      variant="outlined"
+                      size="small"
+                      @click="verResultados(eleicao.id)"
+                      block
+                      class="text-none"
+                    >
+                      <v-icon size="small" class="mr-1">mdi-chart-line</v-icon>
+                      Resultados
+                    </v-btn>
+                    
+                    <!-- Eleições Criadas (Rascunho): Gerenciar E Iniciar -->
+                    <template v-if="eleicao.status === 'Criada'">
+                      <v-btn
+                        color="primary"
+                        variant="outlined"
+                        size="small"
+                        @click="gerenciarEleicao(eleicao)"
+                        block
+                        class="text-none"
+                      >
+                        <v-icon size="small" class="mr-1">mdi-cog</v-icon>
+                        Gerenciar
+                      </v-btn>
+                      <v-btn
+                        color="success"
+                        variant="outlined"
+                        size="small"
+                        @click="iniciarEleicao(eleicao.id)"
+                        block
+                        class="text-none"
+                      >
+                        <v-icon size="small" class="mr-1">mdi-play-circle</v-icon>
+                        Iniciar
+                      </v-btn>
+                    </template>
+                    
+                    <!-- Eleições Ativas: Apenas Gerenciar -->
+                    <v-btn
+                      v-if="eleicao.status === 'Ativa'"
                       color="primary"
                       variant="outlined"
-                      class="mr-2"
+                      size="small"
                       @click="gerenciarEleicao(eleicao)"
+                      block
+                      class="text-none"
                     >
-                      <v-icon left>mdi-cog</v-icon>
+                      <v-icon size="small" class="mr-1">mdi-cog</v-icon>
                       Gerenciar
                     </v-btn>
-                    <v-btn
-                      color="success"
-                      variant="outlined"
-                      @click="iniciarEleicao(eleicao.id)"
-                    >
-                      <v-icon left>mdi-play-circle</v-icon>
-                      Iniciar
-                    </v-btn>
-                  </template>
-                  
-                  <!-- Eleições Ativas: Apenas Gerenciar -->
-                  <v-btn
-                    v-if="eleicao.status === 'Ativa'"
-                    color="primary"
-                    variant="outlined"
-                    @click="gerenciarEleicao(eleicao)"
-                  >
-                    <v-icon left>mdi-cog</v-icon>
-                    Gerenciar
-                  </v-btn>
+                  </div>
                 </v-col>
               </v-row>
             </v-card>
@@ -325,13 +358,20 @@
 <script>
 import { useAuthStore } from '@/stores/authStore'
 import { useEleicaoStore } from '@/stores/eleicaoStore'
+import { useDisplay } from 'vuetify'
 
 export default {
   name: 'AdminDashboard',
   setup() {
     const authStore = useAuthStore()
     const eleicaoStore = useEleicaoStore()
-    return { authStore, eleicaoStore }
+    const display = useDisplay()
+    return { authStore, eleicaoStore, display }
+  },
+  computed: {
+    iconSize() {
+      return this.display.xs ? 36 : this.display.sm ? 42 : 48
+    }
   },
   data() {
     return {
@@ -461,8 +501,44 @@ export default {
 </script>
 
 <style scoped>
-.v-card {
+/* Page Title */
+.page-title {
+  color: #005A9C;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+/* Section Titles */
+.section-title {
+  color: #1a1a1a;
+  margin-bottom: 16px;
+}
+
+/* Stats Cards */
+.stats-card {
   border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Election Cards */
+.election-card {
+  border-radius: 12px;
+  transition: box-shadow 0.2s ease;
+}
+
+.election-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Gap utility for flex containers */
+.gap-2 {
+  gap: 8px;
 }
 
 /* Garantir que títulos não sejam cortados */
@@ -470,20 +546,78 @@ h1, h2, h3, h4, h5, h6 {
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  line-height: 1.2;
 }
 
-/* Títulos específicos em cards */
-.v-card h3 {
-  min-height: 1.5em;
-  word-break: break-word;
-  overflow-wrap: break-word;
+/* Mobile Optimizations */
+@media (max-width: 599px) {
+  .page-title {
+    font-size: 1.25rem !important;
+    margin-bottom: 12px;
+  }
+  
+  .section-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 12px;
+  }
+  
+  .stats-card {
+    border-radius: 8px;
+  }
+  
+  .stats-card:hover {
+    transform: none;
+  }
+  
+  .stats-card:active {
+    transform: scale(0.98);
+  }
+  
+  .election-card {
+    border-radius: 8px;
+  }
+  
+  /* Botões em coluna no mobile */
+  .election-card .v-btn {
+    font-size: 0.875rem;
+    min-height: 40px;
+  }
+  
+  /* Chips menores */
+  .v-chip {
+    font-size: 0.75rem;
+  }
+  
+  /* Textos otimizados */
+  .text-caption {
+    line-height: 1.4 !important;
+  }
 }
 
-/* Descrições em cards */
-.v-card .text-body-2 {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  line-height: 1.4;
+/* Tablet */
+@media (min-width: 600px) and (max-width: 959px) {
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .section-title {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Botões em linha no tablet */
+  .election-card .gap-2 {
+    flex-direction: row;
+  }
+}
+
+/* Desktop */
+@media (min-width: 960px) {
+  .election-card .gap-2 {
+    gap: 12px;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 </style>

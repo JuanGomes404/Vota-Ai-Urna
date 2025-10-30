@@ -1,0 +1,331 @@
+/**
+ * Mobile Responsive Styles - Global
+ * Aplica-se a todos os componentes do sistema
+ */
+
+/* ========== BREAKPOINTS ========== */
+/* 
+  xs: < 600px (Mobile)
+  sm: 600-959px (Tablet Portrait)
+  md: 960-1279px (Tablet Landscape / Small Desktop)
+  lg: 1280-1919px (Desktop)
+  xl: >= 1920px (Large Desktop)
+*/
+
+/* ========== TYPOGRAPHY RESPONSIVE ========== */
+@media (max-width: 599px) {
+  /* Títulos principais */
+  .page-title,
+  .main-title {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Subtítulos */
+  .section-title,
+  .subtitle {
+    font-size: 1.1rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Textos de body */
+  .text-body-1 {
+    font-size: 0.9rem !important;
+  }
+  
+  .text-body-2 {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Caption menor */
+  .text-caption {
+    font-size: 0.75rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* ========== BUTTONS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-btn {
+    min-height: 42px !important;
+    font-size: 0.875rem !important;
+    padding: 0 12px !important;
+  }
+  
+  .v-btn--size-small {
+    min-height: 36px !important;
+    font-size: 0.813rem !important;
+  }
+  
+  .v-btn--size-large {
+    min-height: 48px !important;
+    font-size: 0.938rem !important;
+  }
+  
+  /* Ícones em botões */
+  .v-btn .v-icon {
+    font-size: 18px !important;
+  }
+}
+
+/* ========== CARDS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-card {
+    border-radius: 8px !important;
+  }
+  
+  .v-card .v-card-title {
+    font-size: 1.1rem !important;
+    padding: 12px !important;
+  }
+  
+  .v-card .v-card-text {
+    padding: 12px !important;
+    font-size: 0.875rem !important;
+  }
+  
+  .v-card .v-card-actions {
+    padding: 8px 12px !important;
+  }
+}
+
+/* ========== TABLES RESPONSIVE ========== */
+/* Transforma tabelas em cards empilhados no mobile */
+@media (max-width: 959px) {
+  /* Esconder cabeçalho de tabela */
+  .v-data-table thead {
+    display: none;
+  }
+  
+  /* Transformar linhas em cards */
+  .v-data-table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: white;
+  }
+  
+  /* Transformar células em linhas */
+  .v-data-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 !important;
+    border-bottom: 1px solid #f5f5f5;
+    text-align: right;
+  }
+  
+  .v-data-table tbody td:last-child {
+    border-bottom: none;
+  }
+  
+  /* Adicionar labels antes do conteúdo */
+  .v-data-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    flex: 1;
+    color: #666;
+    font-size: 0.875rem;
+  }
+}
+
+/* ========== FORMS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  /* Inputs touch-friendly */
+  .v-field__input {
+    min-height: 48px !important;
+    font-size: 16px !important; /* Previne zoom no iOS */
+  }
+  
+  .v-text-field input,
+  .v-textarea textarea,
+  .v-select input {
+    font-size: 16px !important;
+  }
+  
+  /* Labels menores */
+  .v-field-label {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Form spacing */
+  .v-form .v-field {
+    margin-bottom: 12px !important;
+  }
+}
+
+/* ========== DIALOGS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-dialog {
+    margin: 8px !important;
+  }
+  
+  .v-dialog .v-card {
+    max-height: calc(100vh - 32px) !important;
+  }
+  
+  .v-dialog .v-card-title {
+    font-size: 1.1rem !important;
+    padding: 12px !important;
+  }
+  
+  .v-dialog .v-card-text {
+    padding: 12px !important;
+  }
+  
+  .v-dialog .v-card-actions {
+    flex-direction: column;
+    padding: 12px !important;
+  }
+  
+  .v-dialog .v-card-actions .v-btn {
+    width: 100%;
+    margin: 4px 0 !important;
+  }
+}
+
+/* ========== CHIPS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-chip {
+    font-size: 0.75rem !important;
+    height: 24px !important;
+    padding: 0 8px !important;
+  }
+  
+  .v-chip .v-icon {
+    font-size: 16px !important;
+  }
+}
+
+/* ========== ALERTS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-alert {
+    font-size: 0.875rem !important;
+    padding: 8px 12px !important;
+  }
+  
+  .v-alert__title {
+    font-size: 0.938rem !important;
+  }
+  
+  .v-alert .v-icon {
+    font-size: 20px !important;
+  }
+}
+
+/* ========== APP BAR RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-app-bar {
+    padding: 0 8px !important;
+  }
+  
+  .v-app-bar-title {
+    font-size: 1rem !important;
+  }
+  
+  .v-app-bar .v-btn {
+    min-width: 40px !important;
+    padding: 0 8px !important;
+  }
+}
+
+/* ========== CONTAINERS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-container {
+    padding: 8px !important;
+  }
+  
+  .v-container.container--fluid {
+    padding: 4px !important;
+  }
+}
+
+/* ========== LISTS RESPONSIVE ========== */
+@media (max-width: 599px) {
+  .v-list-item {
+    min-height: 56px !important;
+    padding: 8px 12px !important;
+  }
+  
+  .v-list-item-title {
+    font-size: 0.938rem !important;
+  }
+  
+  .v-list-item-subtitle {
+    font-size: 0.813rem !important;
+  }
+}
+
+/* ========== UTILITIES ========== */
+/* Gap utilities */
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+
+/* Text utilities */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-break {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Touch-friendly */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scroll container */
+.scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========== ANIMATIONS ========== */
+@media (max-width: 599px) {
+  /* Reduzir animações em mobile para performance */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+}
+
+/* ========== PRINT RESPONSIVE ========== */
+@media print {
+  /* Otimizar para impressão */
+  .v-app-bar,
+  .v-navigation-drawer,
+  .v-btn,
+  .no-print {
+    display: none !important;
+  }
+  
+  .v-main {
+    padding: 0 !important;
+  }
+  
+  .v-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
