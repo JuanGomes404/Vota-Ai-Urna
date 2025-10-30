@@ -5,7 +5,7 @@
         <v-card elevation="8" class="pa-4 pa-sm-6 pa-md-8">
           <v-card-title class="text-center mb-4 mb-md-6 px-0">
             <h2 class="text-h6 text-sm-h5 text-md-h4 font-weight-bold" style="color: #005A9C;">
-              SISTEMA DE GERENCIAMENTO ELEITORAL
+              Login Vota Aí
             </h2>
           </v-card-title>
 
@@ -33,6 +33,20 @@
               persistent-placeholder
             />
 
+            <!-- Indicador de Loading (Backend acordando) -->
+            <div v-if="loading && showBackendWakingAlert" class="text-center mb-4">
+              <v-progress-circular
+                indeterminate
+                color="primary"
+                size="48"
+                width="5"
+              />
+              <p class="text-body-2 text-medium-emphasis mt-3">
+                Aguarde, conectando ao servidor...
+              </p>
+            </div>
+
+            <!-- Alerta de Erro -->
             <v-alert
               v-if="error"
               type="error"
@@ -48,6 +62,24 @@
                 Falha na Autenticação
               </v-alert-title>
               {{ error }}
+            </v-alert>
+
+            <!-- Alerta de Sucesso (Logout) -->
+            <v-alert
+              v-if="successMessage"
+              type="success"
+              variant="tonal"
+              class="mb-4"
+              closable
+              prominent
+              border="start"
+              @click:close="successMessage = null"
+            >
+              <v-alert-title class="text-h6 mb-2">
+                <v-icon class="mr-2">mdi-check-circle</v-icon>
+                Sucesso
+              </v-alert-title>
+              {{ successMessage }}
             </v-alert>
 
             <v-btn
@@ -105,9 +137,24 @@ export default {
       },
       loading: false,
       error: null,
+      successMessage: null,
+      showBackendWakingAlert: false,
+      backendWakingTimer: null,
       rules: {
         required: value => !!value || 'Campo obrigatório'
       }
+    }
+  },
+  mounted() {
+    // Verificar se há mensagem de logout na query
+    if (this.$route.query.logout === 'success') {
+      this.successMessage = 'Logout realizado com sucesso!'
+      // Limpar a query da URL sem recarregar a página
+      this.$router.replace({ query: {} })
+      // Auto-fechar após 5 segundos
+      setTimeout(() => {
+        this.successMessage = null
+      }, 5000)
     }
   },
   methods: {
@@ -117,6 +164,12 @@ export default {
 
       this.loading = true
       this.error = null
+      this.successMessage = null
+
+      // Mostrar alerta de "backend acordando" após 2 segundos de loading
+      this.backendWakingTimer = setTimeout(() => {
+        this.showBackendWakingAlert = true
+      }, 2000)
 
       try {
         console.log('🔐 Iniciando login...')
@@ -162,11 +215,23 @@ export default {
           if (senhaField) senhaField.focus()
         }, 100)
       } finally {
+        // Limpar timer e ocultar alerta
+        if (this.backendWakingTimer) {
+          clearTimeout(this.backendWakingTimer)
+          this.backendWakingTimer = null
+        }
+        this.showBackendWakingAlert = false
         this.loading = false
       }
     },
     goToUrna() {
       this.$router.push('/urna')
+    }
+  },
+  beforeUnmount() {
+    // Limpar timer ao sair do componente
+    if (this.backendWakingTimer) {
+      clearTimeout(this.backendWakingTimer)
     }
   }
 }
