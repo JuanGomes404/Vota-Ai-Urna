@@ -203,8 +203,30 @@ export default {
           status: error.status
         })
         
-        // Exibir mensagem de erro específica
-        this.error = error.error || error.message || 'Erro ao fazer login. Verifique suas credenciais.'
+        // Determinar mensagem de erro apropriada
+        let errorMessage = 'Erro ao fazer login. Tente novamente.'
+        
+        // Se for erro 401 (Unauthorized), é credencial inválida
+        if (error.status === 401) {
+          errorMessage = 'Credenciais inválidas. Verifique seu usuário e senha.'
+        } 
+        // Se houver mensagem específica do backend
+        else if (error.error) {
+          // Verificar se a mensagem indica credenciais inválidas
+          const msgLower = error.error.toLowerCase()
+          if (msgLower.includes('inválid') || msgLower.includes('invalid') || 
+              msgLower.includes('incorret') || msgLower.includes('credenc')) {
+            errorMessage = 'Credenciais inválidas. Verifique seu usuário e senha.'
+          } else {
+            errorMessage = error.error
+          }
+        }
+        // Se for erro de timeout ou conexão
+        else if (error.message && error.message.includes('timeout')) {
+          errorMessage = 'Tempo de conexão esgotado. Verifique sua conexão e tente novamente.'
+        }
+        
+        this.error = errorMessage
         
         // Limpar apenas o campo de senha após erro
         this.credentials.senha = ''
