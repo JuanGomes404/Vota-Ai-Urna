@@ -714,8 +714,15 @@ export default {
       return `${dataFormatada} às ${horaFormatada}`
     },
     async handleLogout() {
-      await this.authStore.logout()
-      this.$router.push('/')
+      try {
+        await this.authStore.logout()
+        // Redirecionar com parâmetro de sucesso
+        this.$router.push({ path: '/login', query: { logout: 'success' } })
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error)
+        // Mesmo com erro, redirecionar
+        this.$router.push({ path: '/login', query: { logout: 'success' } })
+      }
     }
   }
 }
