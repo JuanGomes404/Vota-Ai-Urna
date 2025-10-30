@@ -25,7 +25,10 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = true
         return response
       } catch (error) {
-        this.logout()
+        // Limpar estado sem chamar logout (evita efeitos colaterais)
+        this.user = null
+        this.token = null
+        this.isAuthenticated = false
         throw error
       } finally {
         this.loading = false
