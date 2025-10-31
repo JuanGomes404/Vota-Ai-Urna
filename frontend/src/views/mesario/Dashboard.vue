@@ -108,63 +108,30 @@
               </div>
 
               <v-card-subtitle class="text-center mb-4 mb-md-6 px-0">
-                Digite a Matrícula ou Selecione o Eleitor da Lista:
+                Busque e Selecione o Eleitor
               </v-card-subtitle>
 
-              <v-form @submit.prevent="buscarEleitor" ref="formEleitor">
-                <v-text-field
-                  v-model="matricula"
-                  label="Matrícula"
-                  prepend-inner-icon="mdi-card-account-details"
-                  variant="outlined"
-                  :rules="[rules.required, rules.matricula]"
-                  class="mb-4 mb-md-6"
-                  autofocus
-                  density="comfortable"
-                  persistent-placeholder
-                />
+              <v-alert
+                v-if="error"
+                type="error"
+                class="mb-4"
+                closable
+                @click:close="error = null"
+              >
+                {{ error }}
+              </v-alert>
 
-                <v-alert
-                  v-if="error"
-                  type="error"
-                  class="mb-4"
-                  closable
-                  @click:close="error = null"
-                >
-                  {{ error }}
-                </v-alert>
-
-                <div class="text-center mb-4 mb-md-6">
-                  <v-btn
-                    type="submit"
-                    color="primary"
-                    size="large"
-                    :loading="loading"
-                    class="px-6 px-sm-8"
-                    block
-                  >
-                    <v-icon class="mr-2">mdi-magnify</v-icon>
-                    BUSCAR ELEITOR
-                  </v-btn>
-                </div>
-              </v-form>
-
-              <!-- Lista de Eleitores -->
-              <v-divider class="my-4 my-md-6"></v-divider>
-              
-              <v-card-subtitle class="text-center mb-3 mb-md-4 px-0">
-                <h3 class="text-subtitle-1 text-sm-h6 font-weight-bold">Lista de Eleitores</h3>
-              </v-card-subtitle>
-
+              <!-- Campo de Busca Unificado -->
               <v-text-field
                 v-model="searchEleitores"
-                label="Buscar na lista"
+                label="Buscar por Nome, Matrícula ou Curso"
                 prepend-inner-icon="mdi-magnify"
                 variant="outlined"
                 density="comfortable"
                 class="mb-4"
                 clearable
                 persistent-placeholder
+                autofocus
               />
 
               <v-alert v-if="loadingEleitores" type="info" class="mb-4">
@@ -503,11 +470,9 @@ export default {
     return {
       eleicoes: [],
       eleicaoSelecionada: null,
-      matricula: '',
       eleitor: null,
       eleitores: [],
       searchEleitores: '',
-      loading: false,
       loadingHabilitar: false,
       loadingEleitores: false,
       error: null,
@@ -520,14 +485,7 @@ export default {
       // Variáveis para confirmação
       dialogConfirmacao: false,
       mensagemConfirmacao: '',
-      acaoConfirmada: null,
-      rules: {
-        required: value => !!value || 'Campo obrigatório',
-        matricula: value => {
-          if (!value) return true
-          return value.length >= 8 || 'Matrícula deve ter pelo menos 8 caracteres'
-        }
-      }
+      acaoConfirmada: null
     }
   },
   computed: {
@@ -558,7 +516,6 @@ export default {
     },
     async selecionarEleicao(eleicao) {
       this.eleicaoSelecionada = eleicao
-      this.matricula = ''
       this.eleitor = null
       this.error = null
       this.eleitores = []
@@ -567,7 +524,6 @@ export default {
     },
     voltarSelecaoEleicao() {
       this.eleicaoSelecionada = null
-      this.matricula = ''
       this.eleitor = null
       this.eleitores = []
       this.searchEleitores = ''
@@ -588,7 +544,6 @@ export default {
       }
     },
     selecionarEleitorDaLista(eleitor) {
-      this.matricula = eleitor.matricula
       this.eleitor = eleitor
       this.error = null
       // Scroll para a seção de dados do eleitor
@@ -599,23 +554,6 @@ export default {
           eleitorCard.scrollIntoView({ block: 'nearest' })
         }
       })
-    },
-    async buscarEleitor() {
-      const { valid } = await this.$refs.formEleitor.validate()
-      if (!valid) return
-
-      this.loading = true
-      this.error = null
-      this.eleitor = null
-
-      try {
-        const response = await mesarioService.buscarEleitor(this.matricula, this.eleicaoSelecionada.id)
-        this.eleitor = response.eleitor
-      } catch (error) {
-        this.error = error.error || 'Eleitor não encontrado'
-      } finally {
-        this.loading = false
-      }
     },
     async habilitarEleitor() {
       if (!this.eleitor) return
@@ -630,7 +568,7 @@ export default {
       this.dialogConfirmacao = false
 
       try {
-        const response = await mesarioService.habilitarEleitor(this.matricula, this.eleicaoSelecionada.id)
+        const response = await mesarioService.habilitarEleitor(this.eleitor.matricula, this.eleicaoSelecionada.id)
         this.credencialGerada = response.credencial
         
         // Formatar data de expiração
@@ -658,7 +596,6 @@ export default {
       // Recarregar lista de eleitores para atualizar status
       this.carregarEleitores()
       // Limpar seleção
-      this.matricula = ''
       this.eleitor = null
     },
     confirmarAcao() {
