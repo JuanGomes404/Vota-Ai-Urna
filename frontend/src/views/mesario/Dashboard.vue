@@ -595,7 +595,8 @@ export default {
       this.$nextTick(() => {
         const eleitorCard = document.querySelector('.v-row:has(.v-card)')
         if (eleitorCard) {
-          eleitorCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          // Removido scroll suave que causava bugs em mobile
+          eleitorCard.scrollIntoView({ block: 'nearest' })
         }
       })
     },
