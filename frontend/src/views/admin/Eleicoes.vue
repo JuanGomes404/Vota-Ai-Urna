@@ -35,10 +35,10 @@
       <v-container fluid class="pa-4 pa-sm-6 pa-md-8">
         <v-row>
           <v-col cols="12">
-            <h1 class="text-h3 font-weight-bold mb-6">
+            <h1 class="page-main-title font-weight-bold mb-4 mb-sm-6">
               GERENCIAR ELEIÇÃO
             </h1>
-            <p class="text-h6 grey--text mb-6">
+            <p class="page-subtitle grey--text mb-4 mb-sm-6">
               {{ eleicao?.nome || 'Carregando...' }}
             </p>
           </v-col>
@@ -64,7 +64,7 @@
           <v-window-item value="detalhes">
             <v-card elevation="4" class="pa-6">
               <v-card-title>
-                <h3 class="text-h5">Informações da Eleição</h3>
+                <h3 class="section-title">Informações da Eleição</h3>
               </v-card-title>
               <v-card-text>
                 <v-row>
@@ -105,7 +105,7 @@
           <v-window-item value="chapas">
             <v-card elevation="4" class="pa-6">
               <v-card-title class="d-flex justify-space-between align-center">
-                <h3 class="text-h5">Chapas</h3>
+                <h3 class="section-title">Chapas</h3>
                 <v-btn
                   color="primary"
                   @click="criarChapa"
@@ -141,7 +141,7 @@
           <v-window-item value="eleitores">
             <v-card elevation="4" class="pa-6">
               <v-card-title class="d-flex justify-space-between align-center">
-                <h3 class="text-h5">Eleitores</h3>
+                <h3 class="section-title">Eleitores</h3>
                 <div>
                   <v-btn
                     color="primary"
@@ -182,9 +182,9 @@
         </v-window>
 
         <!-- Dialog para criar chapa -->
-        <v-dialog v-model="dialogChapa" max-width="500" persistent>
+        <v-dialog v-model="dialogChapa" max-width="600" persistent>
           <v-card rounded="lg">
-            <v-card-title class="text-h5 font-weight-bold pa-6 bg-primary">
+            <v-card-title class="dialog-title font-weight-bold pa-4 pa-sm-6 bg-primary">
               <v-icon color="white" class="mr-2">mdi-account-group</v-icon>
               <span class="text-white">Nova Chapa</span>
             </v-card-title>
@@ -236,7 +236,7 @@
         <!-- Dialog para importar eleitores -->
         <v-dialog v-model="dialogImportacao" max-width="900" persistent>
           <v-card rounded="lg">
-            <v-card-title class="text-h5 font-weight-bold pa-6 bg-primary">
+            <v-card-title class="dialog-title font-weight-bold pa-4 pa-sm-6 bg-primary">
               <v-icon color="white" class="mr-2">mdi-upload</v-icon>
               <span class="text-white">Importar Eleitores</span>
             </v-card-title>
@@ -276,17 +276,19 @@
                 @change="processarArquivo"
               />
 
-              <v-card v-if="previewEleitores.length > 0" elevation="2" class="pa-4">
+              <v-card v-if="previewEleitores.length > 0" elevation="2" class="pa-4 preview-card">
                 <v-card-title>
-                  <h4 class="text-h6">Preview dos Eleitores ({{ previewEleitores.length }} encontrados)</h4>
+                  <h4 class="preview-title">Preview dos Eleitores ({{ previewEleitores.length }} encontrados)</h4>
                 </v-card-title>
-                <v-data-table
-                  :headers="previewHeaders"
-                  :items="previewEleitores"
-                  :items-per-page="5"
-                  class="elevation-1 preview-table-mobile"
-                  density="comfortable"
-                />
+                <div class="preview-table-container">
+                  <v-data-table
+                    :headers="previewHeaders"
+                    :items="previewEleitores"
+                    :items-per-page="5"
+                    class="elevation-1 preview-table-mobile"
+                    density="comfortable"
+                  />
+                </div>
               </v-card>
             </v-card-text>
             <v-card-actions class="pa-4 dialog-actions-mobile">
@@ -337,14 +339,14 @@
         <!-- Dialog de Confirmação Genérico -->
         <v-dialog v-model="dialogConfirmacao" max-width="500" persistent>
           <v-card rounded="lg">
-            <v-card-title class="text-h5 font-weight-bold pa-6 bg-warning">
+            <v-card-title class="dialog-title font-weight-bold pa-4 pa-sm-6 bg-warning">
               <div class="d-flex align-center justify-center w-100">
                 <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
                 <span class="text-white">Confirmação</span>
               </div>
             </v-card-title>
-            <v-card-text class="pa-6 text-center">
-              <p class="text-h6 mb-0">{{ mensagemConfirmacao }}</p>
+            <v-card-text class="pa-4 pa-sm-6 text-center">
+              <p class="dialog-message mb-0">{{ mensagemConfirmacao }}</p>
             </v-card-text>
             <v-card-actions class="pa-4">
               <v-spacer />
@@ -645,12 +647,95 @@ export default {
   border-radius: 12px;
 }
 
+/* ========== TYPOGRAPHY MOBILE-RESPONSIVE ========== */
+/* Título principal da página */
+.page-main-title {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+/* Títulos de seção */
+.section-title {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+/* Títulos de dialog */
+.dialog-title {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+/* Mensagem de dialog */
+.dialog-message {
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+/* Preview title */
+.preview-title {
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+/* Container para permitir scroll da tabela */
+.preview-card {
+  overflow: visible !important;
+}
+
+.preview-table-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 599px) {
+  .page-main-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem !important;
+  }
+  
+  .section-title {
+    font-size: 1.125rem !important;
+  }
+  
+  .dialog-title {
+    font-size: 1rem !important;
+  }
+  
+  .dialog-message {
+    font-size: 0.95rem !important;
+  }
+  
+  .preview-title {
+    font-size: 0.95rem !important;
+  }
+  
+  /* Ajustar padding do card de preview em mobile */
+  .preview-card {
+    padding: 8px !important;
+  }
+  
+  .preview-card .v-card-title {
+    padding: 8px 0 !important;
+  }
+}
+
 /* Garantir que títulos não sejam cortados */
 h1, h2, h3, h4, h5, h6 {
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  line-height: 1.2;
 }
 
 /* Títulos específicos em cards */
@@ -667,17 +752,48 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.4;
 }
 
+/* ========== REMOVER ANIMAÇÃO DE SCROLL ========== */
+/* Desabilitar scroll suave que causa bugs em mobile */
+* {
+  scroll-behavior: auto !important;
+}
+
 /* Estilos específicos para tabela de preview em mobile */
 @media (max-width: 959px) {
   /* Estilos para todas as tabelas mobile-friendly */
   .mobile-friendly-table :deep(.v-data-table__wrapper),
   .preview-table-mobile :deep(.v-data-table__wrapper) {
-    overflow-x: visible !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+    max-height: none !important;
+  }
+  
+  /* Permitir scroll no card da tabela */
+  .preview-table-mobile {
+    overflow: visible !important;
+  }
+  
+  .preview-table-mobile .v-card {
+    overflow: visible !important;
+  }
+  
+  .preview-table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .mobile-friendly-table :deep(thead),
   .preview-table-mobile :deep(thead) {
     display: none;
+  }
+  
+  .mobile-friendly-table :deep(tbody),
+  .preview-table-mobile :deep(tbody) {
+    display: block;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
   }
   
   .mobile-friendly-table :deep(tbody tr),

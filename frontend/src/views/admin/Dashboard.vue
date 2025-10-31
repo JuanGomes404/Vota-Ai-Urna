@@ -610,8 +610,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Smooth scrolling */
-html {
+/* Remover smooth scrolling que causa bugs em mobile */
+/* html {
   scroll-behavior: smooth;
-}
+} */
 </style>
