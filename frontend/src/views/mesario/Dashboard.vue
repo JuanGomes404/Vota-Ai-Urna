@@ -20,19 +20,24 @@
         <span class="d-none d-sm-inline">Início</span>
       </v-btn>
       
-      <v-menu>
+      <v-menu location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn color="white" variant="text" v-bind="props" size="small">
+          <v-btn 
+            color="white" 
+            variant="text" 
+            v-bind="props" 
+            size="small"
+          >
             <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-account</v-icon>
             <span class="d-none d-sm-inline">{{ authStore.userName }}</span>
           </v-btn>
         </template>
         <v-list>
           <v-list-item @click="handleLogout">
-            <v-list-item-title>
-              <v-icon class="mr-2">mdi-logout</v-icon>
-              Sair
-            </v-list-item-title>
+            <template v-slot:prepend>
+              <v-icon>mdi-logout</v-icon>
+            </template>
+            <v-list-item-title>Sair</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
