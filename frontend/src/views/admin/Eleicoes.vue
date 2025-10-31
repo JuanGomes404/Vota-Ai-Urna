@@ -119,7 +119,8 @@
                   :headers="headersChapas"
                   :items="chapas"
                   :loading="loading"
-                  class="elevation-1"
+                  class="elevation-1 mobile-friendly-table"
+                  density="comfortable"
                 >
                   <template v-slot:item.actions="{ item }">
                     <v-btn
@@ -163,7 +164,8 @@
                   :headers="headersEleitores"
                   :items="eleitoresFiltrados"
                   :loading="loading"
-                  class="elevation-1"
+                  class="elevation-1 mobile-friendly-table"
+                  density="comfortable"
                 >
                   <template v-slot:item.jaVotou="{ item }">
                     <v-chip
@@ -282,12 +284,13 @@
                   :headers="previewHeaders"
                   :items="previewEleitores"
                   :items-per-page="5"
-                  class="elevation-1"
+                  class="elevation-1 preview-table-mobile"
+                  density="comfortable"
                 />
               </v-card>
             </v-card-text>
-            <v-card-actions class="pa-4">
-              <v-spacer />
+            <v-card-actions class="pa-4 dialog-actions-mobile">
+              <v-spacer class="d-none d-sm-flex" />
               <!-- Mostrar apenas OK quando a importação for bem-sucedida -->
               <template v-if="importacaoSuccess">
                 <v-btn
@@ -295,6 +298,8 @@
                   size="large"
                   variant="elevated"
                   @click="fecharDialogImportacao"
+                  block
+                  class="action-button"
                 >
                   <v-icon left>mdi-check</v-icon>
                   OK
@@ -308,6 +313,7 @@
                   size="large"
                   @click="fecharDialogImportacao"
                   :disabled="loading"
+                  class="action-button"
                 >
                   Cancelar
                 </v-btn>
@@ -318,6 +324,7 @@
                   @click="confirmarImportacao"
                   :loading="loading"
                   :disabled="previewEleitores.length === 0 || importacaoErrors.length > 0"
+                  class="action-button"
                 >
                   <v-icon left>mdi-upload</v-icon>
                   Importar {{ previewEleitores.length }} Eleitores
@@ -371,6 +378,7 @@
 <script>
 import { useEleicaoStore } from '@/stores/eleicaoStore'
 import { fileImportService } from '@/services/fileImportService'
+import { applyMobileTableLabels } from '@/utils/mobileTable'
 
 export default {
   name: 'AdminEleicoes',
@@ -431,6 +439,12 @@ export default {
   },
   async mounted() {
     await this.carregarDados()
+  },
+  updated() {
+    // Aplicar labels mobile sempre que o componente atualizar
+    this.$nextTick(() => {
+      applyMobileTableLabels()
+    })
   },
   methods: {
     async carregarDados() {
@@ -563,6 +577,11 @@ export default {
         } else {
           console.log(`${errors.length} erros encontrados`)
         }
+
+        // Aplicar labels mobile após carregar preview
+        this.$nextTick(() => {
+          applyMobileTableLabels()
+        })
       } catch (error) {
         console.error('Erro ao processar arquivo:', error)
         this.importacaoErrors = [error.message]
@@ -646,5 +665,100 @@ h1, h2, h3, h4, h5, h6 {
   word-break: break-word;
   overflow-wrap: break-word;
   line-height: 1.4;
+}
+
+/* Estilos específicos para tabela de preview em mobile */
+@media (max-width: 959px) {
+  /* Estilos para todas as tabelas mobile-friendly */
+  .mobile-friendly-table :deep(.v-data-table__wrapper),
+  .preview-table-mobile :deep(.v-data-table__wrapper) {
+    overflow-x: visible !important;
+  }
+  
+  .mobile-friendly-table :deep(thead),
+  .preview-table-mobile :deep(thead) {
+    display: none;
+  }
+  
+  .mobile-friendly-table :deep(tbody tr),
+  .preview-table-mobile :deep(tbody tr) {
+    display: block;
+    margin-bottom: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .mobile-friendly-table :deep(tbody td),
+  .preview-table-mobile :deep(tbody td) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid #f5f5f5;
+    text-align: right;
+    min-height: 36px;
+  }
+  
+  .mobile-friendly-table :deep(tbody td:last-child),
+  .preview-table-mobile :deep(tbody td:last-child) {
+    border-bottom: none;
+  }
+  
+  .mobile-friendly-table :deep(tbody td::before),
+  .preview-table-mobile :deep(tbody td::before) {
+    content: attr(data-label);
+    font-weight: 600;
+    text-align: left;
+    flex: 1;
+    color: #555;
+    font-size: 0.875rem;
+    padding-right: 12px;
+  }
+  
+  /* Melhorar espaçamento do conteúdo da célula */
+  .mobile-friendly-table :deep(tbody td > *),
+  .preview-table-mobile :deep(tbody td > *) {
+    flex: 1;
+    text-align: right;
+  }
+  
+  /* Botões de ação em mobile */
+  .mobile-friendly-table :deep(tbody td .v-btn) {
+    margin-left: auto;
+  }
+  
+  /* Ajustar paginação em mobile */
+  .mobile-friendly-table :deep(.v-data-table-footer),
+  .preview-table-mobile :deep(.v-data-table-footer) {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px !important;
+  }
+  
+  .mobile-friendly-table :deep(.v-data-table-footer__items-per-page),
+  .preview-table-mobile :deep(.v-data-table-footer__items-per-page) {
+    margin-bottom: 8px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .mobile-friendly-table :deep(.v-data-table-footer__pagination),
+  .preview-table-mobile :deep(.v-data-table-footer__pagination) {
+    margin: 0 !important;
+  }
+  
+  /* Ajustar botões do dialog em mobile */
+  .dialog-actions-mobile {
+    flex-direction: column !important;
+    gap: 8px;
+  }
+  
+  .dialog-actions-mobile .action-button {
+    width: 100% !important;
+    max-width: none !important;
+  }
 }
 </style>

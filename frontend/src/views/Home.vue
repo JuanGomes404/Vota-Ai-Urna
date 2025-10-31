@@ -20,27 +20,16 @@
         <span class="d-none d-sm-inline">Login</span>
       </v-btn>
       
-      <v-menu v-else>
-        <template v-slot:activator="{ props }">
-          <v-btn 
-            color="white" 
-            variant="text" 
-            v-bind="props" 
-            size="small"
-          >
-            <v-icon class="mr-1">mdi-account</v-icon>
-            <span class="d-none d-sm-inline">{{ authStore.userName }}</span>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item @click="handleLogout">
-            <template v-slot:prepend>
-              <v-icon>mdi-logout</v-icon>
-            </template>
-            <v-list-item-title>Sair</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <v-btn
+        v-else
+        color="white"
+        variant="text"
+        @click="handleLogout"
+        size="small"
+      >
+        <v-icon class="mr-1">mdi-logout</v-icon>
+        <span class="d-none d-sm-inline">Sair</span>
+      </v-btn>
     </v-app-bar>
 
     <v-container class="pt-4 pt-sm-6 pt-md-12 px-2 px-sm-3">
