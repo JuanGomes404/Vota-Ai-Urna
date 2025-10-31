@@ -16,11 +16,11 @@
         size="small"
         class="mr-1 mr-sm-2"
       >
-        <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-home</v-icon>
+        <v-icon class="mr-1">mdi-home</v-icon>
         <span class="d-none d-sm-inline">Início</span>
       </v-btn>
       
-      <v-menu location="bottom">
+      <v-menu>
         <template v-slot:activator="{ props }">
           <v-btn 
             color="white" 
@@ -28,7 +28,7 @@
             v-bind="props" 
             size="small"
           >
-            <v-icon :class="{ 'mr-1': $vuetify.display.smAndUp }">mdi-account</v-icon>
+            <v-icon class="mr-1">mdi-account</v-icon>
             <span class="d-none d-sm-inline">{{ authStore.userName }}</span>
           </v-btn>
         </template>

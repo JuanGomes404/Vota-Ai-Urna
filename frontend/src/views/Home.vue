@@ -16,11 +16,11 @@
         @click="$router.push('/login')"
         size="small"
       >
-        <v-icon :left="$vuetify.display.smAndUp">mdi-login</v-icon>
-        <span class="d-none d-sm-inline ml-1">Login</span>
+        <v-icon class="mr-1">mdi-login</v-icon>
+        <span class="d-none d-sm-inline">Login</span>
       </v-btn>
       
-      <v-menu v-else location="bottom">
+      <v-menu v-else>
         <template v-slot:activator="{ props }">
           <v-btn 
             color="white" 
@@ -28,8 +28,8 @@
             v-bind="props" 
             size="small"
           >
-            <v-icon :left="$vuetify.display.smAndUp">mdi-account</v-icon>
-            <span class="d-none d-sm-inline ml-1">{{ authStore.userName }}</span>
+            <v-icon class="mr-1">mdi-account</v-icon>
+            <span class="d-none d-sm-inline">{{ authStore.userName }}</span>
           </v-btn>
         </template>
         <v-list>
