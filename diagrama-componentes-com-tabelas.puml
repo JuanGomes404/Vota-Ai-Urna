@@ -1,4 +1,4 @@
-@startuml Diagrama_Componentes_VotaAi_AltoNivel
+@startuml Diagrama_Componentes_VotaAi
 
 skinparam component {
     BackgroundColor<<frontend>> LightBlue
@@ -24,43 +24,39 @@ actor "Mesário" as mesario
 actor "Eleitor" as eleitor
 
 package "Frontend Web\n(Vue.js 3 + Vuetify + Pinia)" as frontend <<frontend>> {
-    
     package "Gerenciamento de Estado" {
         component "Auth Store" as auth_store <<frontend>>
         component "Eleicao Store" as eleicao_store <<frontend>>
     }
-    
+
     component "Módulo\nAdministrador\n(Views + Services)" as mod_admin <<frontend>>
     component "Módulo\nMesário\n(Views + Services)" as mod_mesario <<frontend>>
     component "Módulo\nUrna Eletrônica\n(Views + Services)" as mod_urna <<frontend>>
-    
+
     component "Vue Router" as router <<frontend>>
     component "Axios Client" as axios <<frontend>>
 }
 
- 
-
 package "Backend\n(NestJS + Express + TypeScript)" as backend <<backend>> {
-    
     package "Segurança" {
         component "JWT Auth Guard" as jwt_guard <<security>>
         component "Roles Guard\n(RBAC)" as roles_guard <<security>>
     }
-    
+
     package "Controllers (API)" {
         component "Auth Controller\n/api/auth/*" as ctrl_auth <<backend>>
         component "Admin Controller\n/api/admin/*" as ctrl_admin <<backend>>
         component "Mesario Controller\n/api/mesario/*" as ctrl_mesario <<backend>>
         component "Urna Controller\n/api/urna/*" as ctrl_urna <<backend>>
     }
-    
+
     package "Services (Lógica)" {
         component "Auth Service" as svc_auth <<backend>>
         component "Admin Service" as svc_admin <<backend>>
         component "Mesario Service" as svc_mesario <<backend>>
         component "Urna Service" as svc_urna <<backend>>
     }
-    
+
     package "Repositories (Dados)" {
         component "Admin Repository" as repo_admin <<backend>>
         component "Mesario Repository" as repo_mesario <<backend>>
@@ -73,10 +69,12 @@ package "Camada de Dados" as data_layer <<database>> {
     database "PostgreSQL" as db <<database>>
 }
 
+' Atores para módulos do Frontend
 admin --> mod_admin : "acessa"
 mesario --> mod_mesario : "acessa"
 eleitor --> mod_urna : "acessa"
 
+' Navegação e estado no Frontend
 router --> mod_admin
 router --> mod_mesario
 router --> mod_urna
@@ -88,22 +86,25 @@ mod_mesario --> eleicao_store : "consulta dados"
 mod_urna --> eleicao_store : "consulta dados"
 
 auth_store --> axios
+
 eleicao_store --> axios
-mod_admin --> axios : "chamadas HTTP"
-mod_mesario --> axios : "chamadas HTTP"
-mod_urna --> axios : "chamadas HTTP"
+mod_admin --> axios : "HTTP/JSON"
+mod_mesario --> axios : "HTTP/JSON"
+mod_urna --> axios : "HTTP/JSON"
 
 axios --> ctrl_auth : "requisições REST"
 axios --> ctrl_admin : "requisições REST"
 axios --> ctrl_mesario : "requisições REST"
 axios --> ctrl_urna : "requisições REST"
 
+' Segurança aplicada nos controllers
 ctrl_auth --> jwt_guard : "valida token"
 ctrl_admin --> jwt_guard : "valida token"
 ctrl_admin --> roles_guard : "verifica ADMIN"
 ctrl_mesario --> jwt_guard : "valida token"
 ctrl_mesario --> roles_guard : "verifica POLL_WORKER"
 
+' Encadeamento aplicação
 ctrl_auth --> svc_auth : "lógica"
 ctrl_admin --> svc_admin : "lógica"
 ctrl_mesario --> svc_mesario : "lógica"
@@ -120,13 +121,11 @@ repo_urna --> prisma
 
 prisma --> db : "SQL queries"
 
-
 legend right
   |<#LightBlue> Camada de Apresentação |
   |<#LightGreen> Camada de Aplicação |
   |<#LightYellow> Camada de Persistência |
   |<#Orange> Segurança |
-  
 endlegend
 
 @enduml
