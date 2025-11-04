@@ -31,7 +31,7 @@
       </v-btn>
     </v-app-bar>
 
-    <v-main>
+    <v-main class="main-content">
       <v-container fluid class="pa-2 pa-sm-4 pa-md-6 pa-lg-8">
         <v-row>
           <v-col cols="12">
@@ -495,6 +495,19 @@ export default {
 </script>
 
 <style scoped>
+/* Correção crítica para o scroll funcionar corretamente */
+.v-main.main-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100vh;
+  -webkit-overflow-scrolling: touch; /* Suaviza o scroll no iOS */
+}
+
+/* Garantir que o container não force altura mínima */
+.v-main.main-content .v-container {
+  min-height: auto;
+}
+
 /* Page Title */
 .page-title {
   color: #005A9C;

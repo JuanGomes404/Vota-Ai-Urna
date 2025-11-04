@@ -29,9 +29,8 @@ package "FRONTEND (Vue.js Application)" #AliceBlue {
     VotingBoothWeb --> VueRouter
 }
 
-package "BACKEND (Node.js + Express + TypeScript)" #Honeydew {
+package "BACKEND (Node.js + Express + NestJS + TypeScript)" #Honeydew {
     package "Camada de API REST" #LightGreen {
-        component [Express API Server] as API
         
         package "Controllers (MVC)" {
             [Auth Controller] as AuthCtrl
@@ -58,15 +57,7 @@ package "BACKEND (Node.js + Express + TypeScript)" #Honeydew {
     
     package "Camada de Dados (Prisma ORM)" #LightCoral {
         component [Prisma Client] as Prisma
-        database "PostgreSQL Database" as DB {
-            [users]
-            [elections]
-            [candidates]
-            [voters]
-            [credentials]
-            [votes]
-            [audit_logs]
-        }
+        database "PostgreSQL Database" as DB
     }
     
     package "Serviços Auxiliares" #LightGray {
@@ -75,15 +66,23 @@ package "BACKEND (Node.js + Express + TypeScript)" #Honeydew {
     }
 }
 
-HttpClient --> API : HTTPS/REST API
+HttpClient --> AuthCtrl
+HttpClient --> ElectionCtrl
+HttpClient --> VoterCtrl
+HttpClient --> VoteCtrl
 
-API --> JWT
-API --> ErrorHandler
-JWT --> RoleGuard
-RoleGuard --> AuthCtrl
-RoleGuard --> ElectionCtrl
-RoleGuard --> VoterCtrl
-RoleGuard --> VoteCtrl
+AuthCtrl --> JWT
+ElectionCtrl --> JWT
+VoterCtrl --> JWT
+VoteCtrl --> JWT
+AuthCtrl --> RoleGuard
+ElectionCtrl --> RoleGuard
+VoterCtrl --> RoleGuard
+VoteCtrl --> RoleGuard
+AuthCtrl --> ErrorHandler
+ElectionCtrl --> ErrorHandler
+VoterCtrl --> ErrorHandler
+VoteCtrl --> ErrorHandler
 
 AuthCtrl --> AuthSvc
 ElectionCtrl --> ElectionSvc
